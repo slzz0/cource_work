@@ -54,7 +54,6 @@ std::shared_ptr<Student> StudentDatabase::getStudent(size_t index) const {
     return nullptr;
 }
 
-// Helper function to convert string to lowercase
 std::string toLower(const std::string& str) {
     std::string result = str;
     std::transform(result.begin(), result.end(), result.begin(),
