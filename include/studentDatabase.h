@@ -18,26 +18,17 @@ public:
     StudentDatabase() = default;
     ~StudentDatabase() = default;
 
-    // Add student
     void addStudent(std::shared_ptr<Student> student);
     void addStudent(const std::string& name, const std::string& surname,
                    int course, int semester, double averageGrade, bool isBudget);
 
-    // Remove student
     bool removeStudent(const std::string& name, const std::string& surname);
     bool removeStudent(size_t index);
 
-    // Get all students
     std::vector<std::shared_ptr<Student>> getAllStudents() const { return students; }
     size_t getStudentCount() const { return students.size(); }
     std::shared_ptr<Student> getStudent(size_t index) const;
 
-    // Template-based search functions
-    /**
-     * @brief Generic search function using predicate
-     * @param predicate Function that returns true if student matches criteria
-     * @return Vector of matching students
-     */
     template<typename Predicate>
     std::vector<std::shared_ptr<Student>> searchStudents(Predicate predicate) const {
         std::vector<std::shared_ptr<Student>> results;
@@ -46,7 +37,6 @@ public:
         return results;
     }
 
-    // Specific search functions
     std::vector<std::shared_ptr<Student>> searchByName(const std::string& name) const;
     std::vector<std::shared_ptr<Student>> searchBySurname(const std::string& surname) const;
     std::vector<std::shared_ptr<Student>> searchByAverageGrade(double minGrade, double maxGrade) const;
@@ -54,9 +44,8 @@ public:
     std::vector<std::shared_ptr<Student>> searchByAverageEqual(double exactGrade) const;
     std::vector<std::shared_ptr<Student>> searchByCourse(int course) const;
 
-    // Clear all students
     void clear();
 };
 
-#endif // STUDENTDATABASE_H
+#endif 
 

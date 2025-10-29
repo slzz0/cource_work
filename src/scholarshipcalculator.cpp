@@ -12,7 +12,7 @@ double ScholarshipCalculator::calculateScholarship(double averageGrade) {
     } else if (averageGrade >= 5.0 && averageGrade < 6.0) {
         return SCHOLARSHIP_5_0_5_9;
     }
-    return 0.0; // No scholarship for grades below 5.0
+    return 0.0; 
 }
 
 double ScholarshipCalculator::calculateScholarshipForStudent(const Student* student) {

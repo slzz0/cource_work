@@ -21,9 +21,6 @@
 #include "studentDatabase.h"
 #include "scholarshipCalculator.h"
 
-/**
- * @brief Main window class for Scholarship Management System
- */
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -35,6 +32,7 @@ private slots:
     void addStudent();
     void searchByName();
     void searchByAverageGradeEqual();
+    void onCourseChanged(int course);
     void showAllStudents();
     void calculateAllScholarships();
     void clearDatabase();
@@ -48,14 +46,12 @@ private:
     void createStudentTable();
     void createActionButtons();
     void updateStatistics();
+    void updateSemesterRange(int course);
 
-    // Database
     StudentDatabase database;
 
-    // UI Components - Tabs
     QTabWidget* tabWidget;
 
-    // UI Components - Add Student Section
     QLineEdit* nameEdit;
     QLineEdit* surnameEdit;
     QSpinBox* courseSpinBox;
@@ -64,23 +60,19 @@ private:
     QComboBox* fundingCombo;
     QPushButton* addButton;
 
-    // UI Components - Search Section
     QLineEdit* searchNameEdit;
     QPushButton* searchByNameButton;
     QDoubleSpinBox* exactGradeSpinBox;
     QPushButton* searchByExactGradeButton;
 
-    // UI Components - Table
     QTableWidget* studentTable;
 
-    // UI Components - Action Buttons
     QPushButton* showAllButton;
     QPushButton* calculateScholarshipsButton;
     QPushButton* clearButton;
 
-    // Statistics
     QLabel* statisticsLabel;
 };
 
-#endif // MAINWINDOW_H
+#endif 
 

@@ -25,5 +25,4 @@ std::string Student::getStudentInfo() const {
     return oss.str();
 }
 
-// no-op: grades are not stored individually anymore
 

@@ -8,7 +8,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
     setupUI();
-    showAllStudents(); // Show initial empty table
+    showAllStudents();
 }
 
 MainWindow::~MainWindow() = default;
@@ -25,20 +25,16 @@ void MainWindow::setupUI() {
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(15, 15, 15, 15);
 
-    // Statistics label
     statisticsLabel = new QLabel("Total Students: 0", this);
     statisticsLabel->setStyleSheet("font-size: 14px; font-weight: bold; padding: 5px;");
     mainLayout->addWidget(statisticsLabel);
 
-    // Tabs for Add and Search
     createTabs();
     mainLayout->addWidget(tabWidget);
 
-    // Student table
     createStudentTable();
     mainLayout->addWidget(studentTable, 1);
 
-    // Action buttons
     createActionButtons();
     mainLayout->addLayout(new QHBoxLayout());
 
@@ -67,19 +63,16 @@ void MainWindow::createTabs() {
 void MainWindow::createAddStudentTab(QWidget* tab) {
     QGridLayout* layout = new QGridLayout(tab);
 
-    // Name
     layout->addWidget(new QLabel("Name:"), 0, 0);
     nameEdit = new QLineEdit(this);
     nameEdit->setPlaceholderText("Enter student name");
     layout->addWidget(nameEdit, 0, 1);
 
-    // Surname
     layout->addWidget(new QLabel("Surname:"), 1, 0);
     surnameEdit = new QLineEdit(this);
     surnameEdit->setPlaceholderText("Enter student surname");
     layout->addWidget(surnameEdit, 1, 1);
 
-    // Course
     layout->addWidget(new QLabel("Course:"), 2, 0);
     courseSpinBox = new QSpinBox(this);
     courseSpinBox->setMinimum(1);
@@ -87,7 +80,6 @@ void MainWindow::createAddStudentTab(QWidget* tab) {
     courseSpinBox->setValue(1);
     layout->addWidget(courseSpinBox, 2, 1);
 
-    // Semester
     layout->addWidget(new QLabel("Semester:"), 3, 0);
     semesterSpinBox = new QSpinBox(this);
     semesterSpinBox->setMinimum(1);
@@ -95,7 +87,9 @@ void MainWindow::createAddStudentTab(QWidget* tab) {
     semesterSpinBox->setValue(1);
     layout->addWidget(semesterSpinBox, 3, 1);
 
-    // Average grade
+    connect(courseSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::onCourseChanged);
+    onCourseChanged(courseSpinBox->value());
+
     layout->addWidget(new QLabel("Average Grade:"), 4, 0);
     averageGradeSpinBox = new QDoubleSpinBox(this);
     averageGradeSpinBox->setMinimum(0.0);
@@ -105,14 +99,12 @@ void MainWindow::createAddStudentTab(QWidget* tab) {
     averageGradeSpinBox->setValue(5.0);
     layout->addWidget(averageGradeSpinBox, 4, 1);
 
-    // Funding type
     layout->addWidget(new QLabel("Funding:"), 5, 0);
     fundingCombo = new QComboBox(this);
     fundingCombo->addItem("Budget");
     fundingCombo->addItem("Paid");
     layout->addWidget(fundingCombo, 5, 1);
 
-    // Add button
     addButton = new QPushButton("Add Student", this);
     addButton->setStyleSheet(
         "QPushButton {"
@@ -133,7 +125,6 @@ void MainWindow::createAddStudentTab(QWidget* tab) {
 void MainWindow::createSearchTab(QWidget* tab) {
     QGridLayout* layout = new QGridLayout(tab);
 
-    // Search by name
     layout->addWidget(new QLabel("Search by Name:"), 0, 0);
     searchNameEdit = new QLineEdit(this);
     searchNameEdit->setPlaceholderText("Enter name or surname");
@@ -155,7 +146,6 @@ void MainWindow::createSearchTab(QWidget* tab) {
     connect(searchByNameButton, &QPushButton::clicked, this, &MainWindow::searchByName);
     layout->addWidget(searchByNameButton, 0, 2);
 
-    // Search by exact average grade
     layout->addWidget(new QLabel("Search by Average Grade (exact):"), 1, 0);
     exactGradeSpinBox = new QDoubleSpinBox(this);
     exactGradeSpinBox->setMinimum(0.0);
@@ -267,11 +257,9 @@ void MainWindow::addStudent() {
 
     double avg = averageGradeSpinBox->value();
     bool isBudget = (fundingCombo->currentText() == "Budget");
-    // Add student to database
     database.addStudent(name.toStdString(), surname.toStdString(),
                        courseSpinBox->value(), semesterSpinBox->value(), avg, isBudget);
 
-    // Clear input fields
     nameEdit->clear();
     surnameEdit->clear();
     courseSpinBox->setValue(1);
@@ -279,7 +267,6 @@ void MainWindow::addStudent() {
     averageGradeSpinBox->setValue(5.0);
     fundingCombo->setCurrentIndex(0);
 
-    // Update table
     showAllStudents();
     updateStatistics();
 
@@ -321,7 +308,7 @@ void MainWindow::showAllStudents() {
 }
 
 void MainWindow::calculateAllScholarships() {
-    showAllStudents(); // Update table with scholarship calculations
+    showAllStudents();
     QMessageBox::information(this, "Scholarships Calculated", 
         "All scholarships have been calculated and displayed in the table.");
 }
@@ -378,6 +365,19 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
 void MainWindow::updateStatistics() {
     size_t count = database.getStudentCount();
     statisticsLabel->setText(QString("Total Students: %1").arg(count));
+}
+
+void MainWindow::updateSemesterRange(int course) {
+    int minSem = (course - 1) * 2 + 1; 
+    int maxSem = minSem + 1;          
+    semesterSpinBox->setRange(minSem, maxSem);
+    if (semesterSpinBox->value() < minSem || semesterSpinBox->value() > maxSem) {
+        semesterSpinBox->setValue(minSem);
+    }
+}
+
+void MainWindow::onCourseChanged(int course) {
+    updateSemesterRange(course);
 }
 
 
