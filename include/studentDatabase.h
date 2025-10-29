@@ -7,9 +7,6 @@
 #include <algorithm>
 #include <functional>
 
-/**
- * @brief Template-based database for managing students with search functionality
- */
 class StudentDatabase {
 private:
     std::vector<std::shared_ptr<Student>> students;

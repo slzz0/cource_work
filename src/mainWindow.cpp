@@ -310,8 +310,6 @@ void MainWindow::showAllStudents() {
     updateStudentTable(allStudents);
 }
 
-// Removed calculateAllScholarships: table always shows current scholarships
-
 void MainWindow::clearDatabase() {
     int ret = QMessageBox::question(this, "Confirm", 
         "Are you sure you want to clear all student data?",
