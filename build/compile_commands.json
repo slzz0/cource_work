@@ -1,0 +1,38 @@
+[
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\Scholar_autogen\\mocs_compilation.cpp.obj -c D:\\cource_work\\build\\Scholar_autogen\\mocs_compilation.cpp",
+  "file": "D:/cource_work/build/Scholar_autogen/mocs_compilation.cpp",
+  "output": "CMakeFiles/Scholar.dir/Scholar_autogen/mocs_compilation.cpp.obj"
+},
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\src\\main.cpp.obj -c D:\\cource_work\\src\\main.cpp",
+  "file": "D:/cource_work/src/main.cpp",
+  "output": "CMakeFiles/Scholar.dir/src/main.cpp.obj"
+},
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\src\\mainWindow.cpp.obj -c D:\\cource_work\\src\\mainWindow.cpp",
+  "file": "D:/cource_work/src/mainWindow.cpp",
+  "output": "CMakeFiles/Scholar.dir/src/mainWindow.cpp.obj"
+},
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\src\\scholarshipcalculator.cpp.obj -c D:\\cource_work\\src\\scholarshipcalculator.cpp",
+  "file": "D:/cource_work/src/scholarshipcalculator.cpp",
+  "output": "CMakeFiles/Scholar.dir/src/scholarshipcalculator.cpp.obj"
+},
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\src\\student.cpp.obj -c D:\\cource_work\\src\\student.cpp",
+  "file": "D:/cource_work/src/student.cpp",
+  "output": "CMakeFiles/Scholar.dir/src/student.cpp.obj"
+},
+{
+  "directory": "D:/cource_work/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64 @CMakeFiles/Scholar.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\Scholar.dir\\src\\studentDatabase.cpp.obj -c D:\\cource_work\\src\\studentDatabase.cpp",
+  "file": "D:/cource_work/src/studentDatabase.cpp",
+  "output": "CMakeFiles/Scholar.dir/src/studentDatabase.cpp.obj"
+}
+]
