@@ -38,6 +38,15 @@ bool StudentDatabase::removeStudent(size_t index) {
     return false;
 }
 
+bool StudentDatabase::removeStudentPtr(const std::shared_ptr<Student>& studentPtr) {
+    auto it = std::find(students.begin(), students.end(), studentPtr);
+    if (it != students.end()) {
+        students.erase(it);
+        return true;
+    }
+    return false;
+}
+
 std::shared_ptr<Student> StudentDatabase::getStudent(size_t index) const {
     if (index < students.size()) {
         return students[index];

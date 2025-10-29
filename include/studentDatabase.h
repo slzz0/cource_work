@@ -24,6 +24,7 @@ public:
 
     bool removeStudent(const std::string& name, const std::string& surname);
     bool removeStudent(size_t index);
+    bool removeStudentPtr(const std::shared_ptr<Student>& studentPtr);
 
     std::vector<std::shared_ptr<Student>> getAllStudents() const { return students; }
     size_t getStudentCount() const { return students.size(); }

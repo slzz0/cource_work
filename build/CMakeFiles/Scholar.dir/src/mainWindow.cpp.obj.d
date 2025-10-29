@@ -464,6 +464,14 @@ CMakeFiles/Scholar.dir/src/mainWindow.cpp.obj: \
  C:/msys64/mingw64/include/qt6/QtCore/qstringlist.h \
  C:/msys64/mingw64/include/qt6/QtGui/QBrush \
  C:/msys64/mingw64/include/qt6/QtGui/qbrush.h \
+ C:/msys64/mingw64/include/qt6/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/qt6/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/qt6/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/qt6/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/qt6/QtWidgets/QLayout \
+ C:/msys64/mingw64/include/qt6/QtWidgets/qlayout.h \
+ C:/msys64/mingw64/include/qt6/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/qt6/QtWidgets/qdialogbuttonbox.h \
  C:/msys64/ucrt64/include/c++/15.2.0/sstream \
  C:/msys64/ucrt64/include/c++/15.2.0/istream \
  C:/msys64/ucrt64/include/c++/15.2.0/ios \

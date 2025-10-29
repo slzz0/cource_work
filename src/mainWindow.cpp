@@ -2,6 +2,9 @@
 #include <QApplication>
 #include <QStringList>
 #include <QBrush>
+#include <QDialog>
+#include <QFormLayout>
+#include <QDialogButtonBox>
 #include <sstream>
 #include <iomanip>
 
@@ -39,8 +42,38 @@ void MainWindow::setupUI() {
     mainLayout->addLayout(new QHBoxLayout());
 
     QHBoxLayout* buttonLayout = new QHBoxLayout();
-    buttonLayout->addWidget(showAllButton);
-    buttonLayout->addWidget(calculateScholarshipsButton);
+    editSelectedButton = new QPushButton("Edit Selected", this);
+    editSelectedButton->setStyleSheet(
+        "QPushButton {"
+        "background-color: #9C27B0;"
+        "color: white;"
+        "padding: 8px 16px;"
+        "border-radius: 4px;"
+        "font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "background-color: #7b1fa2;"
+        "}"
+    );
+    connect(editSelectedButton, &QPushButton::clicked, this, &MainWindow::editSelectedStudent);
+
+    deleteSelectedButton = new QPushButton("Delete Selected", this);
+    deleteSelectedButton->setStyleSheet(
+        "QPushButton {"
+        "background-color: #FF9800;"
+        "color: white;"
+        "padding: 8px 16px;"
+        "border-radius: 4px;"
+        "font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "background-color: #f57c00;"
+        "}"
+    );
+    connect(deleteSelectedButton, &QPushButton::clicked, this, &MainWindow::deleteSelectedStudent);
+
+    buttonLayout->addWidget(editSelectedButton);
+    buttonLayout->addWidget(deleteSelectedButton);
     buttonLayout->addWidget(clearButton);
     buttonLayout->addStretch();
     mainLayout->addLayout(buttonLayout);
@@ -200,36 +233,6 @@ void MainWindow::createStudentTable() {
 }
 
 void MainWindow::createActionButtons() {
-    showAllButton = new QPushButton("Show All Students", this);
-    showAllButton->setStyleSheet(
-        "QPushButton {"
-        "background-color: #FF9800;"
-        "color: white;"
-        "padding: 8px 16px;"
-        "border-radius: 4px;"
-        "font-weight: bold;"
-        "}"
-        "QPushButton:hover {"
-        "background-color: #f57c00;"
-        "}"
-    );
-    connect(showAllButton, &QPushButton::clicked, this, &MainWindow::showAllStudents);
-
-    calculateScholarshipsButton = new QPushButton("Calculate All Scholarships", this);
-    calculateScholarshipsButton->setStyleSheet(
-        "QPushButton {"
-        "background-color: #9C27B0;"
-        "color: white;"
-        "padding: 8px 16px;"
-        "border-radius: 4px;"
-        "font-weight: bold;"
-        "}"
-        "QPushButton:hover {"
-        "background-color: #7b1fa2;"
-        "}"
-    );
-    connect(calculateScholarshipsButton, &QPushButton::clicked, this, &MainWindow::calculateAllScholarships);
-
     clearButton = new QPushButton("Clear Database", this);
     clearButton->setStyleSheet(
         "QPushButton {"
@@ -307,11 +310,7 @@ void MainWindow::showAllStudents() {
     updateStudentTable(allStudents);
 }
 
-void MainWindow::calculateAllScholarships() {
-    showAllStudents();
-    QMessageBox::information(this, "Scholarships Calculated", 
-        "All scholarships have been calculated and displayed in the table.");
-}
+// Removed calculateAllScholarships: table always shows current scholarships
 
 void MainWindow::clearDatabase() {
     int ret = QMessageBox::question(this, "Confirm", 
@@ -327,6 +326,7 @@ void MainWindow::clearDatabase() {
 }
 
 void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>& studentList) {
+    currentView = studentList;
     studentTable->setRowCount(0);
     
     for (const auto& student : studentList) {
@@ -378,6 +378,89 @@ void MainWindow::updateSemesterRange(int course) {
 
 void MainWindow::onCourseChanged(int course) {
     updateSemesterRange(course);
+}
+
+void MainWindow::editSelectedStudent() {
+    int row = studentTable->currentRow();
+    if (row < 0 || row >= static_cast<int>(currentView.size())) {
+        QMessageBox::warning(this, "Error", "Please select a student to edit.");
+        return;
+    }
+
+    auto student = currentView[row];
+    if (!student) return;
+
+    QDialog dlg(this);
+    dlg.setWindowTitle("Edit Student");
+    QFormLayout* form = new QFormLayout(&dlg);
+
+    QLineEdit* nameField = new QLineEdit(QString::fromStdString(student->getName()), &dlg);
+    QLineEdit* surnameField = new QLineEdit(QString::fromStdString(student->getSurname()), &dlg);
+    QSpinBox* courseField = new QSpinBox(&dlg);
+    courseField->setRange(1, 4);
+    courseField->setValue(student->getCourse());
+    QSpinBox* semesterField = new QSpinBox(&dlg);
+    semesterField->setRange(1, 8);
+    semesterField->setValue(student->getSemester());
+    auto updateSemRange = [&](int c){ int minS=(c-1)*2+1; semesterField->setRange(minS, minS+1); if(semesterField->value()<minS||semesterField->value()>minS+1) semesterField->setValue(minS); };
+    QObject::connect(courseField, QOverload<int>::of(&QSpinBox::valueChanged), &dlg, updateSemRange);
+    updateSemRange(courseField->value());
+
+    QDoubleSpinBox* avgField = new QDoubleSpinBox(&dlg);
+    avgField->setRange(0.0, 10.0);
+    avgField->setDecimals(2);
+    avgField->setSingleStep(0.1);
+    avgField->setValue(student->getAverageGrade());
+
+    QComboBox* fundingField = new QComboBox(&dlg);
+    fundingField->addItem("Budget");
+    fundingField->addItem("Paid");
+    fundingField->setCurrentIndex(student->getIsBudget() ? 0 : 1);
+
+    form->addRow("Name:", nameField);
+    form->addRow("Surname:", surnameField);
+    form->addRow("Course:", courseField);
+    form->addRow("Semester:", semesterField);
+    form->addRow("Average Grade:", avgField);
+    form->addRow("Funding:", fundingField);
+
+    QDialogButtonBox* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+    form->addRow(bb);
+    QObject::connect(bb, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    QObject::connect(bb, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        if (nameField->text().trimmed().isEmpty() || surnameField->text().trimmed().isEmpty()) {
+            QMessageBox::warning(this, "Error", "Name and surname cannot be empty.");
+            return;
+        }
+        student->setName(nameField->text().trimmed().toStdString());
+        student->setSurname(surnameField->text().trimmed().toStdString());
+        student->setCourse(courseField->value());
+        student->setSemester(semesterField->value());
+        student->setAverageGrade(avgField->value());
+        student->setIsBudget(fundingField->currentText() == "Budget");
+        showAllStudents();
+        updateStatistics();
+        QMessageBox::information(this, "Success", "Student updated.");
+    }
+}
+
+void MainWindow::deleteSelectedStudent() {
+    int row = studentTable->currentRow();
+    if (row < 0 || row >= static_cast<int>(currentView.size())) {
+        QMessageBox::warning(this, "Error", "Please select a student to delete.");
+        return;
+    }
+    auto student = currentView[row];
+    if (!student) return;
+    int ret = QMessageBox::question(this, "Confirm", "Delete selected student?", QMessageBox::Yes | QMessageBox::No);
+    if (ret == QMessageBox::Yes) {
+        database.removeStudentPtr(student);
+        showAllStudents();
+        updateStatistics();
+        QMessageBox::information(this, "Success", "Student deleted.");
+    }
 }
 
 

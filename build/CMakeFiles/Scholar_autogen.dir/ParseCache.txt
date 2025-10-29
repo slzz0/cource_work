@@ -443,11 +443,11 @@ D:/cource_work/include/mainWindow.h
  mdp:D:/cource_work/include/scholarshipCalculator.h
  mdp:D:/cource_work/include/student.h
  mdp:D:/cource_work/include/studentDatabase.h
-D:/cource_work/src/mainWindow.cpp
 D:/cource_work/include/scholarshipCalculator.h
-D:/cource_work/src/scholarshipcalculator.cpp
+D:/cource_work/src/mainWindow.cpp
 D:/cource_work/include/student.h
+D:/cource_work/src/scholarshipcalculator.cpp
 D:/cource_work/include/studentDatabase.h
-D:/cource_work/src/student.cpp
 D:/cource_work/src/main.cpp
+D:/cource_work/src/student.cpp
 D:/cource_work/src/studentDatabase.cpp

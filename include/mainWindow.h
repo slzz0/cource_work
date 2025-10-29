@@ -34,9 +34,10 @@ private slots:
     void searchByAverageGradeEqual();
     void onCourseChanged(int course);
     void showAllStudents();
-    void calculateAllScholarships();
     void clearDatabase();
     void updateStudentTable(const std::vector<std::shared_ptr<Student>>& studentList);
+    void editSelectedStudent();
+    void deleteSelectedStudent();
 
 private:
     void setupUI();
@@ -67,11 +68,12 @@ private:
 
     QTableWidget* studentTable;
 
-    QPushButton* showAllButton;
-    QPushButton* calculateScholarshipsButton;
+    QPushButton* editSelectedButton;
+    QPushButton* deleteSelectedButton;
     QPushButton* clearButton;
 
     QLabel* statisticsLabel;
+    std::vector<std::shared_ptr<Student>> currentView;
 };
 
 #endif 
