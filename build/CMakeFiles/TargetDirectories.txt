@@ -1,5 +1,0 @@
-D:/cource_work/build/CMakeFiles/Scholar.dir
-D:/cource_work/build/CMakeFiles/edit_cache.dir
-D:/cource_work/build/CMakeFiles/rebuild_cache.dir
-D:/cource_work/build/CMakeFiles/Scholar_autogen_timestamp_deps.dir
-D:/cource_work/build/CMakeFiles/Scholar_autogen.dir

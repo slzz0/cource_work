@@ -1,3 +1,0 @@
-# Hashes of file build rules.
-2daeb60d73ac27bb6044d23e8d713710 CMakeFiles/Scholar_autogen
-e21f31affbf1a537f79ea629ba67e7a8 Scholar_autogen/timestamp
