@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(Qt6_DIR "C:/msys64/mingw64/lib/cmake/Qt6")
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
-# <<<=== ФИКС: ТВОЙ ПУТЬ К moc.exe ===>>>
 set(CMAKE_AUTOMOC_EXECUTABLE "C:/msys64/mingw64/share/qt6/bin/moc.exe")
 
 set(CMAKE_AUTOMOC ON)

@@ -10,6 +10,7 @@
 class StudentDatabase {
 private:
     std::vector<std::shared_ptr<Student>> students;
+    std::string filename = "students.txt";
 
 public:
     StudentDatabase() = default;
@@ -41,6 +42,10 @@ public:
     std::vector<std::shared_ptr<Student>> searchByAverageAtLeast(double minGrade) const;
     std::vector<std::shared_ptr<Student>> searchByAverageEqual(double exactGrade) const;
     std::vector<std::shared_ptr<Student>> searchByCourse(int course) const;
+
+    bool saveToFile(const std::string& filename = "") const;
+    bool loadFromFile(const std::string& filename = "");
+    void setFilename(const std::string& newFilename) { filename = newFilename; }
 
     void clear();
 };

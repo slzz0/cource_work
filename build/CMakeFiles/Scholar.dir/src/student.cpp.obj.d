@@ -135,33 +135,23 @@ CMakeFiles/Scholar.dir/src/student.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/backward/auto_ptr.h \
  C:/msys64/ucrt64/include/c++/15.2.0/pstl/glue_memory_defs.h \
  C:/msys64/ucrt64/include/c++/15.2.0/pstl/execution_defs.h \
- C:/msys64/ucrt64/include/c++/15.2.0/sstream \
- C:/msys64/ucrt64/include/c++/15.2.0/istream \
- C:/msys64/ucrt64/include/c++/15.2.0/ios \
+ C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/ios_base.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_classes.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_classes.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/system_error \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/error_constants.h \
  C:/msys64/ucrt64/include/c++/15.2.0/stdexcept \
- C:/msys64/ucrt64/include/c++/15.2.0/streambuf \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/streambuf.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/basic_ios.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/locale \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets.h \
  C:/msys64/ucrt64/include/c++/15.2.0/cwctype \
  C:/msys64/ucrt64/include/wctype.h \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_base.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/streambuf \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/streambuf.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/streambuf_iterator.h \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/basic_ios.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/ostream \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/istream.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/sstream.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
- C:/msys64/ucrt64/include/c++/15.2.0/locale \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets_nonio.h \
  C:/msys64/ucrt64/include/c++/15.2.0/ctime \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/time_members.h \
@@ -169,4 +159,21 @@ CMakeFiles/Scholar.dir/src/student.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/codecvt.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets_nonio.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_conv.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/sstream \
+ C:/msys64/ucrt64/include/c++/15.2.0/istream \
+ C:/msys64/ucrt64/include/c++/15.2.0/ios \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/basic_ios.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/basic_ios.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/ostream \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/istream.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/sstream.tcc \
+ D:/cource_work/include/scholarshipCalculator.h \
+ D:/cource_work/include/student.h C:/msys64/ucrt64/include/c++/15.2.0/map \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_tree.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/node_handle.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_map.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_multimap.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/erase_if.h

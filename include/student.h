@@ -12,6 +12,7 @@ protected:
     int semester;
     double averageGrade;
     bool isBudget;
+    double scholarship;
 
 public:
     Student(const std::string& name, const std::string& surname,
@@ -36,6 +37,10 @@ public:
     void setSemester(int semester) { this->semester = semester; }
     void setAverageGrade(double averageGrade) { this->averageGrade = averageGrade; }
     void setIsBudget(bool isBudget) { this->isBudget = isBudget; }
+
+    void recalculateScholarship();
+    double getScholarship() const { return scholarship; }
+    void setScholarship(double s) { scholarship = s; }
 };
 
 #endif 

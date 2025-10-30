@@ -11,6 +11,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent) {
     setupUI();
+    
+    if (database.loadFromFile()) {
+        QMessageBox::information(this, "Success", 
+            QString("Loaded %1 students from file").arg(database.getStudentCount()));
+    } else {
+        QMessageBox::information(this, "Info", 
+            "No saved data found or error loading. Starting with empty database.");
+    }
+    
     showAllStudents();
 }
 
@@ -273,6 +282,7 @@ void MainWindow::addStudent() {
     showAllStudents();
     updateStatistics();
 
+    database.saveToFile();
     QMessageBox::information(this, "Success", "Student added successfully!");
 }
 
@@ -319,6 +329,7 @@ void MainWindow::clearDatabase() {
         database.clear();
         showAllStudents();
         updateStatistics();
+        database.saveToFile();
         QMessageBox::information(this, "Success", "Database cleared successfully.");
     }
 }
@@ -328,16 +339,13 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
     studentTable->setRowCount(0);
     
     for (const auto& student : studentList) {
-        if (student == nullptr) continue;
+        if (!student) continue;
         
         int row = studentTable->rowCount();
         studentTable->insertRow(row);
 
-        double avgGrade = student->calculateAverageGrade();
-        double scholarship = ScholarshipCalculator::calculateScholarshipForStudent(student.get());
-        if (!student->getIsBudget()) {
-            scholarship = 0.0;
-        }
+        double avgGrade = student->getAverageGrade();
+        double scholarship = student->getScholarship(); 
 
         studentTable->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(student->getName())));
         studentTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(student->getSurname())));
@@ -347,12 +355,11 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
         QString funding = student->getIsBudget() ? "Budget" : "Paid";
         studentTable->setItem(row, 4, new QTableWidgetItem(funding));
 
-        QTableWidgetItem* gradeItem = new QTableWidgetItem(QString::number(avgGrade, 'f', 2));
-        studentTable->setItem(row, 5, gradeItem);
+        studentTable->setItem(row, 5, new QTableWidgetItem(QString::number(avgGrade, 'f', 2)));
 
         QTableWidgetItem* scholarshipItem = new QTableWidgetItem(QString::number(scholarship, 'f', 2));
         if (scholarship > 0) {
-            scholarshipItem->setForeground(QBrush(QColor(0, 128, 0))); // Green color
+            scholarshipItem->setForeground(QBrush(QColor(0, 128, 0)));
         }
         studentTable->setItem(row, 6, scholarshipItem);
     }
@@ -438,8 +445,10 @@ void MainWindow::editSelectedStudent() {
         student->setSemester(semesterField->value());
         student->setAverageGrade(avgField->value());
         student->setIsBudget(fundingField->currentText() == "Budget");
+        student->recalculateScholarship();
         showAllStudents();
         updateStatistics();
+        database.saveToFile();
         QMessageBox::information(this, "Success", "Student updated.");
     }
 }
@@ -457,6 +466,7 @@ void MainWindow::deleteSelectedStudent() {
         database.removeStudentPtr(student);
         showAllStudents();
         updateStatistics();
+        database.saveToFile();
         QMessageBox::information(this, "Success", "Student deleted.");
     }
 }
