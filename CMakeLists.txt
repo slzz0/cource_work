@@ -16,12 +16,13 @@ set(CMAKE_AUTORCC ON)
 set(SOURCES
     src/main.cpp
     src/mainWindow.cpp
-    src/scholarshipcalculator.cpp
+    src/scholarshipCalculator.cpp
     src/student.cpp
     src/studentDatabase.cpp
 )
 
 set(HEADERS
+    include/exceptions.h
     include/mainWindow.h
     include/scholarshipcalculator.h
     include/student.h

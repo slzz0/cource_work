@@ -1,80 +1,96 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QSpinBox>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialog>
 #include <QDoubleSpinBox>
-#include <QTextEdit>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QSplitter>
+#include <QTabWidget>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QLabel>
-#include <QGroupBox>
-#include <QTabWidget>
-#include <QMessageBox>
-#include <QHeaderView>
-#include <QComboBox>
-#include "studentDatabase.h"
+#include <QTextEdit>
+#include <QVBoxLayout>
+
 #include "scholarshipCalculator.h"
+#include "studentDatabase.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = nullptr);
+   public:
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-private slots:
+   private slots:
     void addStudent();
-    void searchByName();
-    void searchByAverageGradeEqual();
+    void searchStudent();
+    void calculateAllScholarships();
     void onCourseChanged(int course);
     void showAllStudents();
-    void clearDatabase();
     void updateStudentTable(const std::vector<std::shared_ptr<Student>>& studentList);
     void editSelectedStudent();
     void deleteSelectedStudent();
+    void changeFundingType();
+    void showStudentHistory();
 
-private:
+   private:
     void setupUI();
     void createTabs();
-    void createAddStudentTab(QWidget* tabWidget);
-    void createSearchTab(QWidget* tabWidget);
+    void createStudentsTab(QWidget* tabWidget);
+    void createStatisticsTab(QWidget* tabWidget);
     void createStudentTable();
-    void createActionButtons();
     void updateStatistics();
     void updateSemesterRange(int course);
+    void showStudentDetailsDialog(std::shared_ptr<Student> student);
+    void updateRowNumbers();
 
     StudentDatabase database;
 
     QTabWidget* tabWidget;
 
+    // Students Tab
+    QTableWidget* studentTable;
+    QLineEdit* searchEdit;
+    QPushButton* searchButton;
+    QPushButton* addStudentButton;
+    QPushButton* editButton;
+    QPushButton* deleteButton;
+    QPushButton* changeFundingButton;
+    QPushButton* viewHistoryButton;
+
+    // Add Student Dialog fields
     QLineEdit* nameEdit;
     QLineEdit* surnameEdit;
     QSpinBox* courseSpinBox;
     QSpinBox* semesterSpinBox;
     QDoubleSpinBox* averageGradeSpinBox;
     QComboBox* fundingCombo;
-    QPushButton* addButton;
+    QSpinBox* missedHoursSpinBox;
+    QCheckBox* socialScholarshipCheckBox;
 
-    QLineEdit* searchNameEdit;
-    QPushButton* searchByNameButton;
-    QDoubleSpinBox* exactGradeSpinBox;
-    QPushButton* searchByExactGradeButton;
+    // Statistics Tab
+    QLabel* totalStudentsLabel;
+    QLabel* budgetStudentsLabel;
+    QLabel* paidStudentsLabel;
+    QLabel* totalScholarshipLabel;
+    QPushButton* calculateButton;
+    QTextEdit* statisticsText;
 
-    QTableWidget* studentTable;
-
-    QPushButton* editSelectedButton;
-    QPushButton* deleteSelectedButton;
-    QPushButton* clearButton;
-
-    QLabel* statisticsLabel;
     std::vector<std::shared_ptr<Student>> currentView;
+    bool scholarshipsCalculated = false;
+    bool scholarshipsNeedRecalculation = false;
+    QLabel* recalculationWarning;
 };
 
-#endif 
-
+#endif
