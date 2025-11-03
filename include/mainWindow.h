@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDoubleSpinBox>
+#include <QEvent>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -13,6 +14,7 @@
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QSplitter>
@@ -31,6 +33,9 @@ class MainWindow : public QMainWindow {
    public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
+    
+    // Override eventFilter to block sorting clicks on specific columns
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
    private slots:
     void addStudent();
