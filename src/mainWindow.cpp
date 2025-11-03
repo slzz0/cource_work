@@ -150,7 +150,7 @@ void MainWindow::createAddStudentTab(QWidget* tab) {
     addButton = new QPushButton("Add Student", this);
     addButton->setStyleSheet(
         "QPushButton {"
-        "background-color: #4CAF50;"
+        "background-color: blue;"
         "color: white;"
         "padding: 8px;"
         "border-radius: 4px;"
