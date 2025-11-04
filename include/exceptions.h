@@ -4,14 +4,12 @@
 #include <stdexcept>
 #include <string>
 
-// Base exception class for scholarship system
 class ScholarshipException : public std::runtime_error {
 public:
     explicit ScholarshipException(const std::string& message)
         : std::runtime_error("Scholarship System Error: " + message) {}
 };
 
-// File I/O related exceptions
 class FileIOException : public ScholarshipException {
 public:
     explicit FileIOException(const std::string& message)
@@ -30,7 +28,6 @@ public:
         : FileIOException("Cannot write to file: " + filename) {}
 };
 
-// Data parsing exceptions
 class ParseException : public ScholarshipException {
 public:
     explicit ParseException(const std::string& message)
@@ -43,7 +40,6 @@ public:
         : ParseException("Invalid data format: " + details) {}
 };
 
-// Validation exceptions
 class ValidationException : public ScholarshipException {
 public:
     explicit ValidationException(const std::string& message)
@@ -83,7 +79,6 @@ public:
         : ValidationException("Student name cannot be empty") {}
 };
 
-// Database operation exceptions
 class DatabaseException : public ScholarshipException {
 public:
     explicit DatabaseException(const std::string& message)

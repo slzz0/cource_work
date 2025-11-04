@@ -15,7 +15,6 @@ Student::Student(const std::string& name, const std::string& surname, int course
       averageGrade(averageGrade),
       isBudget(isBudget) {
     
-    // Validate input data
     if (name.empty() || surname.empty()) {
         throw EmptyNameException();
     }
@@ -32,7 +31,7 @@ Student::Student(const std::string& name, const std::string& surname, int course
         throw InvalidGradeException(averageGrade);
     }
     
-    recalculateScholarship();
+    scholarship = 0.0;
 }
 
 double Student::calculateAverageGrade() const { return averageGrade; }
@@ -51,18 +50,15 @@ void Student::recalculateScholarship() {
     scholarship = 0.0;
 
     if (!isBudget) {
-        return;  // Платники не получают стипендию
+        return;  
     }
 
-    // Если пропущено 12 или больше часов - лишаем стипендии
     if (missedHours >= 12) {
         return;
     }
 
-    // Базовая стипендия по среднему баллу
     scholarship = ScholarshipCalculator::calculateScholarship(averageGrade);
 
-    // Добавляем социальную стипендию если есть
     if (hasSocialScholarship) {
         scholarship += ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
     }

@@ -20,7 +20,6 @@ void StudentDatabase::addStudent(std::shared_ptr<Student> student) {
 
 void StudentDatabase::addStudent(const std::string& name, const std::string& surname, int course,
                                  int semester, double averageGrade, bool isBudget) {
-    // Check for duplicates (same name and surname)
     for (const auto& existing : students) {
         if (existing->getName() == name && existing->getSurname() == surname) {
             throw DuplicateStudentException(surname + " " + name);
@@ -155,7 +154,6 @@ bool StudentDatabase::saveToFile(const std::string& fname) const {
         file << "Social:      " << (s->getHasSocialScholarship() ? "Yes" : "No") << "\n";
         std::string history = s->getHistoryString();
         file << "Previous:    " << (history.empty() ? "" : history) << "\n";
-        // Scholarship is not saved to file - it's calculated on demand
         if (i < students.size() - 1) file << "\n---\n\n";
     }
     file << "\n# End of file\n";
@@ -175,11 +173,10 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
     int course = 0, semester = 0, missedHours = 0;
     double avgGrade = 0.0, scholarship = 0.0;
     bool inBlock = false;
-    std::vector<std::string> errors;  // Collect all validation errors
+    std::vector<std::string> errors; 
 
     while (std::getline(file, line)) {
         if (line.find('[') == 0 && line.find(']') != std::string::npos) {
-            // Сохраняем предыдущего студента если был
             if (inBlock && !name.empty() && !surname.empty()) {
                 try {
                     bool isBudget = (funding == "Budget");
@@ -188,7 +185,6 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
                     student->setMissedHours(missedHours);
                     student->setHasSocialScholarship(social == "Yes");
 
-                    // Парсим историю предыдущих семестров
                     if (!previous.empty()) {
                         std::istringstream iss(previous);
                         std::string token;
@@ -204,7 +200,6 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
 
                     students.push_back(student);
                 } catch (const ValidationException& e) {
-                    // Collect error information instead of silently skipping
                     errors.push_back(std::string("Student: ") + surname + " " + name + " - " +
                                      e.what());
                 } catch (const std::exception& e) {
@@ -213,7 +208,6 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
                 }
             }
 
-            // Начинаем новый блок
             name.clear();
             surname.clear();
             funding.clear();
@@ -258,13 +252,10 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
             previous.erase(0, previous.find_first_not_of(" \t"));
             previous.erase(previous.find_last_not_of(" \t\r\n") + 1);
         }
-        // Scholarship is not loaded from file - it's calculated on demand
         else if (line.find("---") == 0 || line.find("# End") == 0) {
-            // Конец блока, но данные уже обработаны
         }
     }
 
-    // Сохраняем последнего студента
     if (inBlock && !name.empty() && !surname.empty()) {
         try {
             bool isBudget = (funding == "Budget");
@@ -288,7 +279,6 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
 
             students.push_back(student);
         } catch (const ValidationException& e) {
-            // Collect error information
             errors.push_back(std::string("Student: ") + surname + " " + name + " - " + e.what());
         } catch (const std::exception& e) {
             errors.push_back(std::string("Student: ") + surname + " " + name + " - " + e.what());
@@ -297,7 +287,6 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
 
     file.close();
 
-    // If there were validation errors, throw exception with all error details
     if (!errors.empty()) {
         std::string errorMsg = "Some students were skipped due to invalid data:\n";
         for (size_t i = 0; i < errors.size(); ++i) {

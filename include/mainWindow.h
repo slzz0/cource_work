@@ -34,7 +34,6 @@ class MainWindow : public QMainWindow {
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
     
-    // Override eventFilter to block sorting clicks on specific columns
     bool eventFilter(QObject* obj, QEvent* event) override;
 
    private slots:
@@ -64,7 +63,6 @@ class MainWindow : public QMainWindow {
 
     QTabWidget* tabWidget;
 
-    // Students Tab
     QTableWidget* studentTable;
     QLineEdit* searchEdit;
     QPushButton* searchButton;
@@ -74,7 +72,6 @@ class MainWindow : public QMainWindow {
     QPushButton* changeFundingButton;
     QPushButton* viewHistoryButton;
 
-    // Add Student Dialog fields
     QLineEdit* nameEdit;
     QLineEdit* surnameEdit;
     QSpinBox* courseSpinBox;
@@ -84,7 +81,6 @@ class MainWindow : public QMainWindow {
     QSpinBox* missedHoursSpinBox;
     QCheckBox* socialScholarshipCheckBox;
 
-    // Statistics Tab
     QLabel* totalStudentsLabel;
     QLabel* budgetStudentsLabel;
     QLabel* paidStudentsLabel;
