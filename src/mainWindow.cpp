@@ -1155,9 +1155,9 @@ void MainWindow::showStudentHistory() {
             "No previous semester data available.\nThis student is on their first semester.");
     } else {
         std::ostringstream historyOss;
-        historyOss << "════════════════════════════════════════════════\n";
-        historyOss << "Semester History\n";
-        historyOss << "════════════════════════════════════════════════\n\n";
+        historyOss << "══════════════════════════════════\n";
+        historyOss << "\tAbout Student\n";
+        historyOss << "══════════════════════════════════\n\n";
 
         std::vector<std::pair<int, double>> sortedHistory;
         for (const auto& pair : previousGrades) {
@@ -1178,7 +1178,7 @@ void MainWindow::showStudentHistory() {
             if (student->getIsBudget()) {
                 prevScholarship = ScholarshipCalculator::calculateScholarship(grade);
             }
-            historyOss << "  Scholarship (est.): " << std::fixed << std::setprecision(2)
+            historyOss << "  Scholarship: " << std::fixed << std::setprecision(2)
                        << prevScholarship << " BYN\n";
             historyOss << "\n";
         }
@@ -1188,7 +1188,6 @@ void MainWindow::showStudentHistory() {
 
     layout->addWidget(historyText, 1);
 
-    // Close button
     QPushButton* closeButton = new QPushButton("Close", &historyDialog);
     closeButton->setStyleSheet(
         "QPushButton { "
