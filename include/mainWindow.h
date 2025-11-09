@@ -40,12 +40,10 @@ class MainWindow : public QMainWindow {
     void addStudent();
     void searchStudent();
     void calculateAllScholarships();
-    void onCourseChanged(int course);
     void showAllStudents();
     void updateStudentTable(const std::vector<std::shared_ptr<Student>>& studentList);
     void editSelectedStudent();
     void deleteSelectedStudent();
-    void changeFundingType();
     void showStudentHistory();
 
    private:
@@ -55,9 +53,14 @@ class MainWindow : public QMainWindow {
     void createStatisticsTab(QWidget* tabWidget);
     void createStudentTable();
     void updateStatistics();
-    void updateSemesterRange(int course);
+    void updateSemesterStatisticsTable();
     void showStudentDetailsDialog(std::shared_ptr<Student> student);
     void updateRowNumbers();
+    void fillMissingHistoryGrades();
+    int getYearForSemester(int semester) const;
+    int getYearForSemester(int semester, int admissionYear) const;
+    QString getSessionTypeForSemester(int semester) const;
+    int getAdmissionYearFromSemester(int semester) const;
 
     StudentDatabase database;
 
@@ -69,12 +72,10 @@ class MainWindow : public QMainWindow {
     QPushButton* addStudentButton;
     QPushButton* editButton;
     QPushButton* deleteButton;
-    QPushButton* changeFundingButton;
     QPushButton* viewHistoryButton;
 
     QLineEdit* nameEdit;
     QLineEdit* surnameEdit;
-    QSpinBox* courseSpinBox;
     QSpinBox* semesterSpinBox;
     QDoubleSpinBox* averageGradeSpinBox;
     QComboBox* fundingCombo;
@@ -86,7 +87,7 @@ class MainWindow : public QMainWindow {
     QLabel* paidStudentsLabel;
     QLabel* totalScholarshipLabel;
     QPushButton* calculateButton;
-    QTextEdit* statisticsText;
+    QTableWidget* semesterStatsTable;
 
     std::vector<std::shared_ptr<Student>> currentView;
     bool scholarshipsCalculated = false;

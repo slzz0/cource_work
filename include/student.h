@@ -44,7 +44,11 @@ class Student {
     void setName(const std::string& name) { this->name = name; }
     void setSurname(const std::string& surname) { this->surname = surname; }
     void setCourse(int course) { this->course = course; }
-    void setSemester(int semester) { this->semester = semester; }
+    void setSemester(int semester) { 
+        this->semester = semester; 
+        // Automatically calculate course from semester: 1-2 = course 1, 3-4 = course 2, etc.
+        this->course = (semester - 1) / 2 + 1;
+    }
     void setAverageGrade(double averageGrade) { this->averageGrade = averageGrade; }
     void setIsBudget(bool isBudget) { this->isBudget = isBudget; }
     void setMissedHours(int hours) { missedHours = hours; }

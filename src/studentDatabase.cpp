@@ -145,7 +145,6 @@ bool StudentDatabase::saveToFile(const std::string& fname) const {
         file << "[" << (i + 1) << "]\n";
         file << "Name:        " << s->getName() << "\n";
         file << "Surname:     " << s->getSurname() << "\n";
-        file << "Course:      " << s->getCourse() << "\n";
         file << "Semester:    " << s->getSemester() << "\n";
         file << "Avg Grade:   " << std::fixed << std::setprecision(2) << s->getAverageGrade()
              << "\n";
@@ -232,9 +231,12 @@ bool StudentDatabase::loadFromFile(const std::string& fname) {
             surname.erase(0, surname.find_first_not_of(" \t"));
             surname.erase(surname.find_last_not_of(" \t\r\n") + 1);
         } else if (line.find("Course:") == 0) {
-            std::sscanf(line.c_str(), "Course: %d", &course);
+            // Ignore Course field for backward compatibility - course is calculated from semester
+            // Old format files may still have Course field, but we don't use it
         } else if (line.find("Semester:") == 0) {
             std::sscanf(line.c_str(), "Semester: %d", &semester);
+            // Calculate course from semester: 1-2 = course 1, 3-4 = course 2, etc.
+            course = (semester - 1) / 2 + 1;
         } else if (line.find("Avg Grade:") == 0) {
             std::sscanf(line.c_str(), "Avg Grade: %lf", &avgGrade);
         } else if (line.find("Funding:") == 0) {
