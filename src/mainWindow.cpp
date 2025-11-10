@@ -23,7 +23,6 @@
 
 #include "exceptions.h"
 
-
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setupUI();
 
@@ -52,7 +51,7 @@ MainWindow::~MainWindow() = default;
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
     if (obj == studentTable->horizontalHeader() && event->type() == QEvent::MouseButtonPress) {
-        return true;  
+        return true;
     }
 
     return QMainWindow::eventFilter(obj, event);
@@ -157,7 +156,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     // Create table first
     createStudentTable();
-    tableButtonsLayout->addWidget(studentTable, 3); // Table takes 3 parts of space
+    tableButtonsLayout->addWidget(studentTable, 3);  // Table takes 3 parts of space
 
     // Right side - Buttons column in a styled container
     QGroupBox* buttonsGroup = new QGroupBox("Actions", this);
@@ -178,13 +177,13 @@ void MainWindow::createStudentsTab(QWidget* tab) {
         "padding: 0 5px;"
         "color: #14a085;"
         "}");
-    
+
     QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsGroup);
     buttonsLayout->setSpacing(10);
     buttonsLayout->setContentsMargins(15, 20, 15, 15);
 
     // Common button style
-    QString buttonStyle = 
+    QString buttonStyle =
         "QPushButton {"
         "background-color: #0d7377;"
         "color: white;"
@@ -236,12 +235,14 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     buttonsLayout->addWidget(calculateButton);
 
     buttonsLayout->addStretch();
-    tableButtonsLayout->addWidget(buttonsGroup, 1); // Buttons take 1 part of space
+    tableButtonsLayout->addWidget(buttonsGroup, 1);  // Buttons take 1 part of space
 
     mainLayout->addLayout(tableButtonsLayout, 1);
 
-    recalculationWarning =
-        new QLabel("WARNING: A new student has been added, or a student has been transferred to a budget/paid. Please recalculate scholarships.", this);
+    recalculationWarning = new QLabel(
+        "WARNING: A new student has been added, or a student has been transferred to a "
+        "budget/paid. Please recalculate scholarships.",
+        this);
     recalculationWarning->setStyleSheet(
         "QLabel {"
         "background-color: #DC143C;"
@@ -307,9 +308,9 @@ void MainWindow::createStatisticsTab(QWidget* tab) {
 
     semesterStatsTable = new QTableWidget(this);
     semesterStatsTable->setColumnCount(3);
-    semesterStatsTable->setHorizontalHeaderLabels(
-        QStringList() << "Year / Session" << "Students Count"
-                      << "Total Scholarship (BYN)");
+    semesterStatsTable->setHorizontalHeaderLabels(QStringList()
+                                                  << "Year / Session" << "Students Count"
+                                                  << "Total Scholarship (BYN)");
     semesterStatsTable->verticalHeader()->setVisible(false);
     semesterStatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     semesterStatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -367,7 +368,7 @@ void MainWindow::createStudentTable() {
     studentTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     studentTable->setAlternatingRowColors(true);
     studentTable->horizontalHeader()->setStretchLastSection(false);
-    studentTable->setSortingEnabled(false);  
+    studentTable->setSortingEnabled(false);
 
     studentTable->horizontalHeader()->installEventFilter(this);
     studentTable->horizontalHeader()->setStyleSheet(
@@ -418,11 +419,10 @@ void MainWindow::createStudentTable() {
 
         for (int row = 0; row < studentTable->rowCount(); ++row) {
             bool isSelected = (row == selectedRow);
-            QColor bgColor =
-                isSelected ? QColor(13, 115, 119) : QColor();  
+            QColor bgColor = isSelected ? QColor(13, 115, 119) : QColor();
             QColor textColor = isSelected ? QColor(255, 255, 255) : QColor(234, 234, 234);
 
-            for (int col = 1; col < colCount; ++col) {  
+            for (int col = 1; col < colCount; ++col) {
                 QTableWidgetItem* item = studentTable->item(row, col);
                 if (item && (item->flags() & Qt::ItemIsSelectable)) {
                     // Check if this is missed hours column with high missed hours (>= 12)
@@ -433,14 +433,15 @@ void MainWindow::createStudentTable() {
                         if (colorVar.isValid()) {
                             missedHoursColor = colorVar.value<QColor>();
                         } else {
-                            missedHoursColor = QColor(255, 0, 0); // Fallback to red
+                            missedHoursColor = QColor(255, 0, 0);  // Fallback to red
                         }
                     }
-                    
+
                     if (isSelected) {
                         item->setBackground(QBrush(bgColor));
                         if (isHighMissedHours) {
-                            item->setForeground(QBrush(missedHoursColor)); // Keep red color even when selected
+                            item->setForeground(
+                                QBrush(missedHoursColor));  // Keep red color even when selected
                         } else if (col == 9 && scholarshipsCalculated) {
                             item->setForeground(QBrush(textColor));
                         } else {
@@ -449,7 +450,7 @@ void MainWindow::createStudentTable() {
                     } else {
                         item->setBackground(QBrush());
                         if (isHighMissedHours) {
-                            item->setForeground(QBrush(missedHoursColor)); // Restore red color
+                            item->setForeground(QBrush(missedHoursColor));  // Restore red color
                         } else if (col == 9 && scholarshipsCalculated) {
                             QVariant storedColor = item->data(Qt::UserRole + 1);
                             if (storedColor.isValid()) {
@@ -589,10 +590,11 @@ void MainWindow::addStudent() {
             if (semester == 2) {
                 semester = 3;
             }
-            int course = (semester - 1) / 2 + 1; // Calculate course from semester: 1-2 = course 1, 3-4 = course 2, etc.
-            auto student = std::make_shared<Student>(
-                name.toStdString(), surname.toStdString(), course,
-                semester, averageGradeSpinBox->value(), isBudget);
+            int course = (semester - 1) / 2 +
+                         1;  // Calculate course from semester: 1-2 = course 1, 3-4 = course 2, etc.
+            auto student =
+                std::make_shared<Student>(name.toStdString(), surname.toStdString(), course,
+                                          semester, averageGradeSpinBox->value(), isBudget);
 
             student->setMissedHours(missedHoursSpinBox->value());
             student->setHasSocialScholarship(socialScholarshipCheckBox->isChecked());
@@ -604,7 +606,7 @@ void MainWindow::addStudent() {
                 std::mt19937 gen(rd());
                 // Grades will be in range 5.0 to 10.0 with some variation
                 std::uniform_real_distribution<double> gradeDistribution(5.0, 10.0);
-                
+
                 for (int sem = 1; sem < currentSem; ++sem) {
                     double randomGrade = gradeDistribution(gen);
                     // Round to 2 decimal places
@@ -659,7 +661,7 @@ void MainWindow::searchStudent() {
         updateStudentTable(results);
     } catch (const StudentNotFoundException& e) {
         QMessageBox::information(this, "Not Found", e.what());
-        showAllStudents();  
+        showAllStudents();
     } catch (const std::exception& e) {
         QMessageBox::critical(this, "Search Error", e.what());
     }
@@ -744,13 +746,13 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
 
         QTableWidgetItem* numItem = new QTableWidgetItem(QString::number(rowNum++));
         numItem->setTextAlignment(Qt::AlignCenter);
-        numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));          
-        numItem->setForeground(QBrush(QColor(180, 180, 180)));        
-        numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);  
-        numItem->setData(Qt::UserRole, QVariant());  
+        numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));
+        numItem->setForeground(QBrush(QColor(180, 180, 180)));
+        numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);
+        numItem->setData(Qt::UserRole, QVariant());
         studentTable->setItem(row, 0, numItem);
 
-        QColor defaultTextColor(234, 234, 234); // #EAEAEA
+        QColor defaultTextColor(234, 234, 234);  // #EAEAEA
 
         QTableWidgetItem* nameItem =
             new QTableWidgetItem(QString::fromStdString(student->getName()));
@@ -788,9 +790,9 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
         missedItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         // Highlight missed hours in red if >= 12
         if (student->getMissedHours() >= 12) {
-            QColor redColor(255, 0, 0); // Red color
-            missedItem->setData(Qt::UserRole + 10, true); // Mark as high missed hours
-            missedItem->setData(Qt::UserRole + 11, redColor); // Store red color for restoration
+            QColor redColor(255, 0, 0);                        // Red color
+            missedItem->setData(Qt::UserRole + 10, true);      // Mark as high missed hours
+            missedItem->setData(Qt::UserRole + 11, redColor);  // Store red color for restoration
             missedItem->setForeground(QBrush(redColor));
             QFont boldFont = missedItem->font();
             boldFont.setBold(true);
@@ -803,7 +805,7 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
         QTableWidgetItem* socialItem =
             new QTableWidgetItem(student->getHasSocialScholarship() ? "Yes" : "No");
         socialItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-        socialItem->setData(Qt::UserRole, 0); 
+        socialItem->setData(Qt::UserRole, 0);
         socialItem->setForeground(QBrush(defaultTextColor));
         studentTable->setItem(row, 8, socialItem);
 
@@ -836,10 +838,10 @@ void MainWindow::updateStudentTable(const std::vector<std::shared_ptr<Student>>&
     }
 
     updateRowNumbers();
-    
+
     // Unblock signals - this will trigger updateSelectionVisual if needed
     studentTable->blockSignals(false);
-    
+
     // Explicitly apply red color to missed hours >= 12 after all items are created
     // This ensures red color is applied even if updateSelectionVisual was called
     for (int row = 0; row < studentTable->rowCount(); ++row) {
@@ -916,11 +918,11 @@ int MainWindow::getYearForSemester(int semester, int admissionYear) const {
     // Semester 6 (Summer) = admissionYear + 2
     // Semester 7 (Winter) = admissionYear + 3
     // Semester 8 (Summer) = admissionYear + 3
-    
+
     // Formula: year = admissionYear + floor((semester - 1) / 2)
     // But for even semesters (summer), it's the same year as the next odd semester
     // So: year = admissionYear + (semester - 1) / 2 for odd, admissionYear + semester / 2 for even
-    
+
     if (semester % 2 == 1) {
         // Odd semester (Winter): semester 1 = year 0, semester 3 = year 1, etc.
         return admissionYear + (semester - 1) / 2;
@@ -991,8 +993,9 @@ void MainWindow::updateSemesterStatisticsTable() {
 
             // Winter: count student if they were on ANY semester in this year
             stats.winterCount += 1;
-            
-            // Calculate scholarship for winter (use current semester if in this year, otherwise use first semester from history)
+
+            // Calculate scholarship for winter (use current semester if in this year, otherwise use
+            // first semester from history)
             double winterScholarship = 0.0;
             if (isBudget) {
                 if (getYearForSemester(currentSem) == year) {
@@ -1005,7 +1008,8 @@ void MainWindow::updateSemesterStatisticsTable() {
                     for (int sem : yearSemesters) {
                         auto it = history.find(sem);
                         if (it != history.end()) {
-                            winterScholarship = ScholarshipCalculator::calculateScholarship(it->second);
+                            winterScholarship =
+                                ScholarshipCalculator::calculateScholarship(it->second);
                             break;
                         }
                     }
@@ -1013,7 +1017,8 @@ void MainWindow::updateSemesterStatisticsTable() {
             }
             stats.winterTotal += winterScholarship;
 
-            // Summer: count student only if they were on an even semester (Summer session) in this year
+            // Summer: count student only if they were on an even semester (Summer session) in this
+            // year
             bool wasOnSummerSemester = false;
             for (int sem : yearSemesters) {
                 if (sem % 2 == 0 && allSemesters.find(sem) != allSemesters.end()) {
@@ -1024,7 +1029,7 @@ void MainWindow::updateSemesterStatisticsTable() {
 
             if (wasOnSummerSemester) {
                 stats.summerCount += 1;
-                
+
                 // Calculate scholarship for summer
                 double summerScholarship = 0.0;
                 if (isBudget) {
@@ -1040,7 +1045,8 @@ void MainWindow::updateSemesterStatisticsTable() {
                             } else {
                                 auto it = history.find(sem);
                                 if (it != history.end()) {
-                                    summerScholarship = ScholarshipCalculator::calculateScholarship(it->second);
+                                    summerScholarship =
+                                        ScholarshipCalculator::calculateScholarship(it->second);
                                     break;
                                 }
                             }
@@ -1073,7 +1079,8 @@ void MainWindow::updateSemesterStatisticsTable() {
         winterItem->setFlags(winterItem->flags() & ~Qt::ItemIsSelectable);
         semesterStatsTable->setItem(winterRow, 0, winterItem);
 
-        QTableWidgetItem* winterCountItem = new QTableWidgetItem(QString::number(stats.winterCount));
+        QTableWidgetItem* winterCountItem =
+            new QTableWidgetItem(QString::number(stats.winterCount));
         winterCountItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         winterCountItem->setForeground(QBrush(defaultTextColor));
         winterCountItem->setFlags(winterCountItem->flags() & ~Qt::ItemIsSelectable);
@@ -1247,7 +1254,7 @@ void MainWindow::editSelectedStudent() {
             int oldSemester = student->getSemester();
             double oldGrade = student->getAverageGrade();
             int newSemester = semesterField->value();
-            
+
             // Prevent semester 2 - if somehow it's still 2, change to 3
             if (newSemester == 2) {
                 newSemester = 3;
@@ -1272,7 +1279,7 @@ void MainWindow::editSelectedStudent() {
                 std::random_device rd;
                 std::mt19937 gen(rd());
                 std::uniform_real_distribution<double> gradeDistribution(5.0, 10.0);
-                
+
                 for (int sem = 1; sem < newSemester; ++sem) {
                     // If this semester doesn't have a grade, generate a random one
                     if (existingHistory.find(sem) == existingHistory.end()) {
@@ -1392,7 +1399,7 @@ void MainWindow::showStudentHistory() {
     currentInfoTable->setAlternatingRowColors(true);
     currentInfoTable->horizontalHeader()->setStretchLastSection(true);
     currentInfoTable->setShowGrid(false);
-    
+
     currentInfoTable->setStyleSheet(
         "QTableWidget {"
         "background-color: #1B1B1B;"
@@ -1407,7 +1414,7 @@ void MainWindow::showStudentHistory() {
         "font-size: 13px;"
         "}"
         "QTableWidget::item:hover {"
-        "background-color: #2d2d2d;"        
+        "background-color: #2d2d2d;"
         "}"
         "QHeaderView::section {"
         "background-color: #0d7377;"
@@ -1424,40 +1431,40 @@ void MainWindow::showStudentHistory() {
         "QHeaderView::section:last {"
         "border-top-right-radius: 8px;"
         "}");
-    
+
     QColor defaultTextColor(234, 234, 234);
-    
+
     // Calculate admission year and current year from semester
     int semester = student->getSemester();
     int admissionYear = getAdmissionYearFromSemester(semester);
     int currentYear = getYearForSemester(semester, admissionYear);
-    
+
     // Show current semester with year and session type
     QString currentSessionType = getSessionTypeForSemester(student->getSemester());
-    QString currentSemesterInfo = QString("%1 (%2 %3)").arg(student->getSemester()).arg(currentYear).arg(currentSessionType);
-    
-    QStringList properties = {"Admission Year", "Course", "Semester / Year / Session", "Average Grade", "Funding Type", 
-                              "Missed Hours", "Social Scholarship", "Scholarship"};
-    QStringList values = {
-        QString::number(admissionYear),
-        QString::number(student->getCourse()),
-        currentSemesterInfo,
-        QString::number(student->getAverageGrade(), 'f', 2),
-        student->getIsBudget() ? "Budget" : "Paid",
-        QString::number(student->getMissedHours()),
-        student->getHasSocialScholarship() ? "Yes" : "No",
-        QString::number(student->getScholarship(), 'f', 2) + " BYN"
-    };
-    
+    QString currentSemesterInfo =
+        QString("%1 (%2 %3)").arg(student->getSemester()).arg(currentYear).arg(currentSessionType);
+
+    QStringList properties = {"Admission Year",     "Course",       "Semester / Year / Session",
+                              "Average Grade",      "Funding Type", "Missed Hours",
+                              "Social Scholarship", "Scholarship"};
+    QStringList values = {QString::number(admissionYear),
+                          QString::number(student->getCourse()),
+                          currentSemesterInfo,
+                          QString::number(student->getAverageGrade(), 'f', 2),
+                          student->getIsBudget() ? "Budget" : "Paid",
+                          QString::number(student->getMissedHours()),
+                          student->getHasSocialScholarship() ? "Yes" : "No",
+                          QString::number(student->getScholarship(), 'f', 2) + " BYN"};
+
     // Update table row count for 8 rows (added Admission Year)
     currentInfoTable->setRowCount(8);
-    
+
     for (int i = 0; i < 8; ++i) {
         QTableWidgetItem* propertyItem = new QTableWidgetItem(properties[i]);
         propertyItem->setForeground(QBrush(defaultTextColor));
         propertyItem->setFlags(propertyItem->flags() & ~Qt::ItemIsSelectable);
         currentInfoTable->setItem(i, 0, propertyItem);
-        
+
         QTableWidgetItem* valueItem = new QTableWidgetItem(values[i]);
         valueItem->setForeground(QBrush(defaultTextColor));
         if (i == 7 && student->getScholarship() > 0) {
@@ -1467,7 +1474,7 @@ void MainWindow::showStudentHistory() {
         valueItem->setFlags(valueItem->flags() & ~Qt::ItemIsSelectable);
         currentInfoTable->setItem(i, 1, valueItem);
     }
-    
+
     currentInfoTable->resizeColumnsToContents();
     currentInfoTable->setMaximumHeight(280);
     layout->addWidget(currentInfoTable);
@@ -1481,14 +1488,15 @@ void MainWindow::showStudentHistory() {
 
     QTableWidget* historyTable = new QTableWidget(&historyDialog);
     historyTable->setColumnCount(3);
-    historyTable->setHorizontalHeaderLabels(QStringList() << "Semester / Year / Session" << "Average Grade" << "Scholarship (BYN)");
+    historyTable->setHorizontalHeaderLabels(
+        QStringList() << "Semester / Year / Session" << "Average Grade" << "Scholarship (BYN)");
     historyTable->verticalHeader()->setVisible(false);
     historyTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     historyTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     historyTable->setAlternatingRowColors(true);
     historyTable->horizontalHeader()->setStretchLastSection(true);
     historyTable->setShowGrid(false);
-    
+
     historyTable->setStyleSheet(
         "QTableWidget {"
         "background-color: #1B1B1B;"
@@ -1524,7 +1532,8 @@ void MainWindow::showStudentHistory() {
     const auto& previousGrades = student->getPreviousSemesterGrades();
     if (previousGrades.empty()) {
         historyTable->setRowCount(1);
-        QString noDataText = "No previous semester data available. This student is on their first semester.";
+        QString noDataText =
+            "No previous semester data available. This student is on their first semester.";
         QTableWidgetItem* noDataItem = new QTableWidgetItem(noDataText);
         noDataItem->setForeground(QBrush(defaultTextColor));
         noDataItem->setFlags(noDataItem->flags() & ~Qt::ItemIsSelectable);
@@ -1546,7 +1555,7 @@ void MainWindow::showStudentHistory() {
         std::sort(sortedHistory.begin(), sortedHistory.end());
 
         historyTable->setRowCount(sortedHistory.size());
-        
+
         for (size_t i = 0; i < sortedHistory.size(); ++i) {
             int sem = sortedHistory[i].first;
             double grade = sortedHistory[i].second;
@@ -1576,7 +1585,8 @@ void MainWindow::showStudentHistory() {
             historyTable->setItem(i, 1, gradeItem);
 
             // Scholarship column (2)
-            QTableWidgetItem* scholarshipItem = new QTableWidgetItem(QString::number(prevScholarship, 'f', 2));
+            QTableWidgetItem* scholarshipItem =
+                new QTableWidgetItem(QString::number(prevScholarship, 'f', 2));
             scholarshipItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
             if (prevScholarship > 0) {
                 scholarshipItem->setForeground(QBrush(QColor(76, 175, 80)));
@@ -1587,7 +1597,7 @@ void MainWindow::showStudentHistory() {
             scholarshipItem->setFlags(scholarshipItem->flags() & ~Qt::ItemIsSelectable);
             historyTable->setItem(i, 2, scholarshipItem);
         }
-        
+
         historyTable->resizeColumnsToContents();
     }
 
@@ -1619,12 +1629,12 @@ void MainWindow::fillMissingHistoryGrades() {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> gradeDistribution(5.0, 10.0);
-    
+
     for (auto& student : allStudents) {
         int currentSem = student->getSemester();
         if (currentSem > 1) {
             const auto& existingHistory = student->getPreviousSemesterGrades();
-            
+
             for (int sem = 1; sem < currentSem; ++sem) {
                 // If this semester doesn't have a grade, generate a random one
                 if (existingHistory.find(sem) == existingHistory.end()) {
@@ -1645,9 +1655,9 @@ void MainWindow::updateRowNumbers() {
         } else {
             numItem = new QTableWidgetItem(QString::number(row + 1));
             numItem->setTextAlignment(Qt::AlignCenter);
-            numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));           
-            numItem->setForeground(QBrush(QColor(180, 180, 180)));        
-            numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);  
+            numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));
+            numItem->setForeground(QBrush(QColor(180, 180, 180)));
+            numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);
             studentTable->setItem(row, 0, numItem);
         }
     }
