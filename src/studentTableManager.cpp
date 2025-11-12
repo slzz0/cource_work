@@ -1,0 +1,335 @@
+#include "studentTableManager.h"
+
+#include <QAbstractItemView>
+#include <QBrush>
+#include <QFont>
+#include <QHeaderView>
+#include <QStringList>
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QVariant>
+
+#include "student.h"
+
+StudentTableManager::StudentTableManager(QTableWidget* tableWidget, QObject* parent)
+    : QObject(parent), table(tableWidget) {}
+
+void StudentTableManager::configure(QObject* eventFilterOwner) {
+    if (!table) return;
+
+    table->setColumnCount(9);
+    QStringList headers = {"#",        "Name",         "Surname",       "Course",
+                           "Semester", "Funding Type", "Average Grade", "Missed Hours",
+                           "Social"};
+    table->setHorizontalHeaderLabels(headers);
+    table->verticalHeader()->setVisible(false);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setAlternatingRowColors(true);
+    table->horizontalHeader()->setStretchLastSection(false);
+    table->setSortingEnabled(false);
+    if (table->horizontalHeader() && eventFilterOwner) {
+        table->horizontalHeader()->installEventFilter(eventFilterOwner);
+    }
+
+    // Улучшенные шрифты
+    QFont baseFont("SF Pro Display", 11, QFont::Normal); // Более современный и четкий
+    baseFont.setStyleHint(QFont::SansSerif);
+    table->setFont(baseFont);
+    
+    if (table->horizontalHeader()) {
+        QFont headerFont("", 11, QFont::DemiBold); // Полужирный для заголовков
+        headerFont.setStyleHint(QFont::SansSerif);
+        table->horizontalHeader()->setFont(headerFont);
+    }
+
+    table->horizontalHeader()->setStyleSheet(
+        "QHeaderView::section {"
+        "background-color: #2A2A2A;"
+        "color: #EAEAEA;"
+        "padding: 14px 12px;" // Уменьшил отступы
+        "border: none;"
+        "border-bottom: 2px solid #0d7377;"
+        "min-height: 45px;" // Уменьшил высоту
+        "}"
+        "QHeaderView::section:first {"
+        "background-color: transparent;"
+        "color: #EAEAEA;"
+        "border-bottom: none;"
+        "}");
+
+    table->setStyleSheet(
+        "QTableWidget {"
+        "gridline-color: #2d2d2d;"
+        "background-color: #1B1B1B;"
+        "alternate-background-color: #1E1E1E;"
+        "border: 2px solid #0d7377;"
+        "border-radius: 8px;"
+        "}"
+        "QTableWidget::item {"
+        "padding: 12px 10px;" // Уменьшил отступы в ячейках
+        "border: none;"
+        "}"
+        "QTableWidget::item:selected {"
+        "background-color: #0d7377 !important;"
+        "color: white !important;"
+        "}"
+        "QTableWidget::item:selected:alternate {"
+        "background-color: #0d7377 !important;"
+        "color: white !important;"
+        "}"
+        "QTableWidget::item:alternate {"
+        "background-color: #1E1E1E;"
+        "}");
+
+    connect(table, &QTableWidget::itemSelectionChanged, this,
+            &StudentTableManager::updateSelectionVisual);
+    connect(table, &QTableWidget::currentItemChanged, this,
+            [this](QTableWidgetItem*, QTableWidgetItem*) { updateSelectionVisual(); });
+}
+
+void StudentTableManager::ensureScholarshipColumn(bool scholarshipsCalculated) {
+    if (!table) return;
+    if (scholarshipsCalculated && table->columnCount() == 9) {
+        table->insertColumn(9);
+        table->setHorizontalHeaderItem(9, new QTableWidgetItem("Scholarship (BYN)"));
+        table->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
+        table->horizontalHeader()->setStretchLastSection(true);
+    } else if (!scholarshipsCalculated && table->columnCount() == 10) {
+        table->removeColumn(9);
+        table->horizontalHeader()->setStretchLastSection(false);
+    }
+}
+
+void StudentTableManager::populate(const std::vector<std::shared_ptr<Student>>& students,
+                                   bool scholarshipsCalculated) {
+    if (!table) return;
+
+    ensureScholarshipColumn(scholarshipsCalculated);
+
+    table->blockSignals(true);
+    table->setRowCount(0);
+
+    int rowNum = 1;
+    for (const auto& student : students) {
+        if (!student) continue;
+
+        int row = table->rowCount();
+        table->insertRow(row);
+
+        double avgGrade = student->getAverageGrade();
+        double scholarship = student->getScholarship();
+
+        QColor defaultTextColor(234, 234, 234);
+        QFont itemFont;
+        itemFont.setPointSize(11); // Уменьшил размер
+        itemFont.setFamily("SF Pro Display");
+        itemFont.setStyleHint(QFont::SansSerif);
+
+        // Номер строки
+        QTableWidgetItem* numItem = new QTableWidgetItem(QString::number(rowNum++));
+        numItem->setTextAlignment(Qt::AlignCenter);
+        numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));
+        numItem->setForeground(QBrush(QColor(180, 180, 180)));
+        numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);
+        numItem->setData(Qt::UserRole, QVariant());
+        numItem->setFont(itemFont);
+        table->setItem(row, 0, numItem);
+
+        // Имя и Фамилия - делаем шрифт немного жирнее для лучшей читаемости
+        QFont nameFont = itemFont;
+        nameFont.setWeight(QFont::Medium);
+
+        QTableWidgetItem* nameItem = new QTableWidgetItem(QString::fromStdString(student->getName()));
+        nameItem->setForeground(QBrush(defaultTextColor));
+        nameItem->setFont(nameFont);
+        table->setItem(row, 1, nameItem);
+
+        QTableWidgetItem* surnameItem = new QTableWidgetItem(QString::fromStdString(student->getSurname()));
+        surnameItem->setForeground(QBrush(defaultTextColor));
+        surnameItem->setFont(nameFont);
+        table->setItem(row, 2, surnameItem);
+
+        // Остальные ячейки
+        QTableWidgetItem* courseItem = new QTableWidgetItem(QString::number(student->getCourse()));
+        courseItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        courseItem->setForeground(QBrush(defaultTextColor));
+        courseItem->setFont(itemFont);
+        table->setItem(row, 3, courseItem);
+
+        QTableWidgetItem* semesterItem = new QTableWidgetItem(QString::number(student->getSemester()));
+        semesterItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        semesterItem->setForeground(QBrush(defaultTextColor));
+        semesterItem->setFont(itemFont);
+        table->setItem(row, 4, semesterItem);
+
+        QString funding = student->getIsBudget() ? "Budget" : "Paid";
+        QTableWidgetItem* fundingItem = new QTableWidgetItem(funding);
+        fundingItem->setForeground(QBrush(defaultTextColor));
+        fundingItem->setFont(itemFont);
+        table->setItem(row, 5, fundingItem);
+
+        QTableWidgetItem* gradeItem = new QTableWidgetItem(QString::number(avgGrade, 'f', 2));
+        gradeItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        gradeItem->setForeground(QBrush(defaultTextColor));
+        gradeItem->setFont(itemFont);
+        table->setItem(row, 6, gradeItem);
+
+        QTableWidgetItem* missedItem = new QTableWidgetItem(QString::number(student->getMissedHours()));
+        missedItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        QColor redColor(255, 100, 100); // Более мягкий красный
+        if (student->getMissedHours() >= 12) {
+            missedItem->setData(Qt::UserRole + 10, true);
+            missedItem->setData(Qt::UserRole + 11, redColor);
+            missedItem->setForeground(QBrush(redColor));
+            QFont boldFont = itemFont;
+            boldFont.setWeight(QFont::Bold);
+            missedItem->setFont(boldFont);
+        } else {
+            missedItem->setData(Qt::UserRole + 10, false);
+            missedItem->setData(Qt::UserRole + 11, QColor());
+            missedItem->setForeground(QBrush(defaultTextColor));
+            missedItem->setFont(itemFont);
+        }
+        table->setItem(row, 7, missedItem);
+
+        QTableWidgetItem* socialItem = new QTableWidgetItem(student->getHasSocialScholarship() ? "Yes" : "No");
+        socialItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+        socialItem->setData(Qt::UserRole, 0);
+        socialItem->setForeground(QBrush(defaultTextColor));
+        socialItem->setFont(itemFont);
+        table->setItem(row, 8, socialItem);
+
+        if (scholarshipsCalculated && table->columnCount() > 9) {
+            QTableWidgetItem* scholarshipItem = new QTableWidgetItem(QString::number(scholarship, 'f', 2));
+            scholarshipItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+            scholarshipItem->setData(Qt::UserRole, 0);
+            scholarshipItem->setData(Qt::UserRole + 2, scholarship);
+            
+            QFont scholarshipFont = itemFont;
+            if (scholarship > 0) {
+                scholarshipItem->setData(Qt::UserRole + 1, QColor(100, 230, 100)); // Яркий зеленый
+                scholarshipFont.setWeight(QFont::DemiBold);
+                scholarshipItem->setFont(scholarshipFont);
+                scholarshipItem->setForeground(QBrush(QColor(100, 230, 100)));
+            } else {
+                scholarshipItem->setData(Qt::UserRole + 1, QColor(180, 180, 180));
+                scholarshipItem->setFont(scholarshipFont);
+                scholarshipItem->setForeground(QBrush(QColor(180, 180, 180)));
+            }
+            table->setItem(row, 9, scholarshipItem);
+        }
+    }
+
+    // Настройка размеров колонок
+    if (table->columnCount() == 10 && scholarshipsCalculated) {
+        for (int i = 0; i < 9; ++i) {
+            table->resizeColumnToContents(i);
+        }
+        table->horizontalHeader()->setStretchLastSection(true);
+    } else {
+        table->resizeColumnsToContents();
+    }
+
+    // Установим минимальные ширины для лучшего отображения
+    table->setColumnWidth(1, 100); // Name
+    table->setColumnWidth(2, 120); // Surname
+    table->setColumnWidth(5, 100); // Funding Type
+    table->setColumnWidth(6, 110); // Average Grade
+    table->setColumnWidth(7, 100); // Missed Hours
+    table->setColumnWidth(8, 70);  // Social
+
+    updateRowNumbers();
+    table->blockSignals(false);
+    updateSelectionVisual();
+    applyMissedHoursStyling();
+}
+
+// Остальные методы остаются без изменений...
+void StudentTableManager::applyMissedHoursStyling() {
+    if (!table) return;
+    for (int row = 0; row < table->rowCount(); ++row) {
+        QTableWidgetItem* missedItem = table->item(row, 7);
+        if (missedItem && missedItem->data(Qt::UserRole + 10).toBool()) {
+            QColor redColor = missedItem->data(Qt::UserRole + 11).value<QColor>();
+            if (!redColor.isValid()) redColor = QColor(255, 100, 100);
+            missedItem->setForeground(QBrush(redColor));
+            QFont font = missedItem->font();
+            font.setWeight(QFont::Bold);
+            missedItem->setFont(font);
+        } else if (missedItem) {
+            QColor defaultTextColor(234, 234, 234);
+            missedItem->setForeground(QBrush(defaultTextColor));
+            QFont font = missedItem->font();
+            font.setWeight(QFont::Normal);
+            missedItem->setFont(font);
+        }
+    }
+}
+
+void StudentTableManager::updateSelectionVisual() {
+    if (!table) return;
+
+    QColor selectedColor(13, 115, 119);
+    QColor defaultColor(234, 234, 234);
+
+    for (int row = 0; row < table->rowCount(); ++row) {
+        bool isSelected = table->selectionModel() && table->selectionModel()->isRowSelected(row);
+
+        for (int col = 0; col < table->columnCount(); ++col) {
+            QTableWidgetItem* item = table->item(row, col);
+            if (!item) continue;
+
+            if (isSelected) {
+                item->setBackground(QBrush(selectedColor));
+                if (col == 7 && item->data(Qt::UserRole + 10).toBool()) {
+                    QColor redColor = item->data(Qt::UserRole + 11).value<QColor>();
+                    if (!redColor.isValid()) redColor = QColor(255, 100, 100);
+                    item->setForeground(QBrush(redColor));
+                } else {
+                    item->setForeground(QBrush(Qt::white));
+                }
+            } else {
+                item->setBackground(QBrush(Qt::transparent));
+                if (col == 0) {
+                    item->setForeground(QBrush(QColor(180, 180, 180)));
+                } else if (col == 7 && item->data(Qt::UserRole + 10).toBool()) {
+                    QColor redColor = item->data(Qt::UserRole + 11).value<QColor>();
+                    if (!redColor.isValid()) redColor = QColor(255, 100, 100);
+                    item->setForeground(QBrush(redColor));
+                } else if (col == 7) {
+                    item->setForeground(QBrush(defaultColor));
+                } else if (col == 9 && item->data(Qt::UserRole + 2).isValid()) {
+                    QColor storedColor = item->data(Qt::UserRole + 1).value<QColor>();
+                    item->setForeground(QBrush(storedColor.isValid() ? storedColor : defaultColor));
+                } else {
+                    item->setForeground(QBrush(defaultColor));
+                }
+            }
+        }
+    }
+}
+
+void StudentTableManager::updateRowNumbers() {
+    if (!table) return;
+    for (int row = 0; row < table->rowCount(); ++row) {
+        QTableWidgetItem* numItem = table->item(row, 0);
+        if (numItem) {
+            numItem->setText(QString::number(row + 1));
+        } else {
+            numItem = new QTableWidgetItem(QString::number(row + 1));
+            numItem->setTextAlignment(Qt::AlignCenter);
+            numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));
+            numItem->setForeground(QBrush(QColor(180, 180, 180)));
+            numItem->setFlags(numItem->flags() & ~Qt::ItemIsSelectable);
+            
+            QFont font;
+            font.setPointSize(10);
+            font.setFamily("Segoe UI");
+            numItem->setFont(font);
+            
+            table->setItem(row, 0, numItem);
+        }
+    }
+}

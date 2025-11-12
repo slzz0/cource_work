@@ -19,6 +19,11 @@ set(SOURCES
     src/scholarshipCalculator.cpp
     src/student.cpp
     src/studentDatabase.cpp
+    src/studentDialogBuilder.cpp
+    src/studentTableManager.cpp
+    src/studentStatisticsUpdater.cpp
+    src/studentHistoryDialog.cpp
+    src/historyGradeGenerator.cpp
 )
 
 set(HEADERS
@@ -27,6 +32,11 @@ set(HEADERS
     include/scholarshipcalculator.h
     include/student.h
     include/studentDatabase.h
+    include/studentDialogBuilder.h
+    include/studentTableManager.h
+    include/studentStatisticsUpdater.h
+    include/studentHistoryDialog.h
+    include/historyGradeGenerator.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
