@@ -1,9 +1,9 @@
 #include "student.h"
-#include "exceptions.h"
 
 #include <iomanip>
 #include <sstream>
 
+#include "exceptions.h"
 #include "scholarshipCalculator.h"
 
 Student::Student(const std::string& name, const std::string& surname, int course, int semester,
@@ -14,23 +14,22 @@ Student::Student(const std::string& name, const std::string& surname, int course
       semester(semester),
       averageGrade(averageGrade),
       isBudget(isBudget) {
-    
     if (name.empty() || surname.empty()) {
         throw EmptyNameException();
     }
-    
+
     if (course < 1 || course > 4) {
         throw InvalidCourseException(course);
     }
-    
+
     if (semester < 1 || semester > 8) {
         throw InvalidSemesterException(semester);
     }
-    
+
     if (averageGrade < 0.0 || averageGrade > 10.0) {
         throw InvalidGradeException(averageGrade);
     }
-    
+
     scholarship = 0.0;
 }
 
@@ -50,10 +49,13 @@ void Student::recalculateScholarship() {
     scholarship = 0.0;
 
     if (!isBudget) {
-        return;  
+        return;
     }
 
     if (missedHours >= 12) {
+        if (hasSocialScholarship) {
+            scholarship = ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
+        }
         return;
     }
 
