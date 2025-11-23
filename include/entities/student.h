@@ -6,7 +6,7 @@
     #include <string>
 
     class Student {
-    protected:
+    private:
         std::string name;
         std::string surname;
         int course;
