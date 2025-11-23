@@ -93,16 +93,30 @@ void StudentStatisticsUpdater::updateSemesterTable(
 
             double winterScholarship = 0.0;
             if (isBudget) {
-                if (getYearForSemester(currentSem) == year) {
-                    if (student->getMissedHours() < 12) {
-                        winterScholarship = student->getScholarship();
-                    }
-                } else {
-                    for (int sem : yearSemesters) {
-                        auto it = history.find(sem);
-                        if (it != history.end()) {
-                            winterScholarship = ScholarshipCalculator::calculateScholarship(it->second);
-                            break;
+                int budgetSem = student->getBudgetSemester();
+                if (budgetSem > 0) {  // Студент был бюджетником хотя бы в одном семестре
+                    if (getYearForSemester(currentSem) == year) {
+                        // Проверяем, что текущий семестр >= budgetSemester
+                        if (currentSem >= budgetSem && student->getMissedHours() < 12) {
+                            winterScholarship = student->getScholarship();
+                        }
+                    } else {
+                        for (int sem : yearSemesters) {
+                            // Проверяем, что семестр >= budgetSemester (когда студент стал бюджетником)
+                            if (sem >= budgetSem) {
+                                auto it = history.find(sem);
+                                if (it != history.end()) {
+                                    // Используем сохраненную стипендию из истории, если есть
+                                    const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
+                                    auto scholarshipIt = scholarshipHistory.find(sem);
+                                    if (scholarshipIt != scholarshipHistory.end()) {
+                                        winterScholarship = scholarshipIt->second;
+                                    } else {
+                                        winterScholarship = ScholarshipCalculator::calculateScholarship(it->second);
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -122,19 +136,29 @@ void StudentStatisticsUpdater::updateSemesterTable(
 
                 double summerScholarship = 0.0;
                 if (isBudget) {
-                    for (int sem : yearSemesters) {
-                        if (sem % 2 == 0) {
-                            if (sem == currentSem && getYearForSemester(currentSem) == year) {
-                                if (student->getMissedHours() < 12) {
-                                    summerScholarship = student->getScholarship();
-                                }
-                                break;
-                            } else {
-                                auto it = history.find(sem);
-                                if (it != history.end()) {
-                                    summerScholarship =
-                                        ScholarshipCalculator::calculateScholarship(it->second);
+                    int budgetSem = student->getBudgetSemester();
+                    if (budgetSem > 0) {  // Студент был бюджетником хотя бы в одном семестре
+                        for (int sem : yearSemesters) {
+                            if (sem % 2 == 0 && sem >= budgetSem) {  // Проверяем, что семестр >= budgetSemester
+                                if (sem == currentSem && getYearForSemester(currentSem) == year) {
+                                    if (student->getMissedHours() < 12) {
+                                        summerScholarship = student->getScholarship();
+                                    }
                                     break;
+                                } else {
+                                    auto it = history.find(sem);
+                                    if (it != history.end()) {
+                                        // Используем сохраненную стипендию из истории, если есть
+                                        const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
+                                        auto scholarshipIt = scholarshipHistory.find(sem);
+                                        if (scholarshipIt != scholarshipHistory.end()) {
+                                            summerScholarship = scholarshipIt->second;
+                                        } else {
+                                            summerScholarship =
+                                                ScholarshipCalculator::calculateScholarship(it->second);
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                         }

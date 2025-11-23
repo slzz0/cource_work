@@ -192,22 +192,26 @@ void StudentHistoryDialog::showHistory(const std::shared_ptr<Student>& student) 
             double grade = sortedHistory[i].second;
 
             // Используем сохраненную историю стипендий, если она есть
-            // Иначе вычисляем из оценки (только для студентов на бюджете, для обратной совместимости)
+            // НО: показываем стипендии только за семестры, когда студент был бюджетником
             double prevScholarship = 0.0;
-            const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
-            auto scholarshipIt = scholarshipHistory.find(sem);
-            if (scholarshipIt != scholarshipHistory.end()) {
-                // Используем сохраненную стипендию из истории
-                prevScholarship = scholarshipIt->second;
-            } else {
-                // Если истории нет, вычисляем из оценки только если студент сейчас на бюджете
-                // Для студентов на платном не вычисляем, так как они могли быть переведены с бюджета
-                // и их стипендии должны быть сохранены в истории
-                if (student->getIsBudget()) {
-                    prevScholarship = ScholarshipCalculator::calculateScholarship(grade);
+            int budgetSem = student->getBudgetSemester();
+            
+            // Показываем стипендию только если семестр >= budgetSemester (когда студент стал бюджетником)
+            if (budgetSem > 0 && sem >= budgetSem) {
+                const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
+                auto scholarshipIt = scholarshipHistory.find(sem);
+                if (scholarshipIt != scholarshipHistory.end()) {
+                    // Используем сохраненную стипендию из истории
+                    prevScholarship = scholarshipIt->second;
+                } else {
+                    // Если истории нет, вычисляем из оценки только если студент сейчас на бюджете
+                    // и семестр >= budgetSemester
+                    if (student->getIsBudget()) {
+                        prevScholarship = ScholarshipCalculator::calculateScholarship(grade);
+                    }
                 }
-                // Если студент на платном и истории нет - показываем 0 (стипендия не была сохранена)
             }
+            // Если семестр < budgetSemester, студент был платным в этом семестре, стипендия = 0
 
             int year = getYearForSemester(sem, admissionYear);
             QString sessionType = getSessionTypeForSemester(sem);
