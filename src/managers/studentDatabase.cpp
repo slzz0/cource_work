@@ -4,11 +4,13 @@
 #include <cctype>
 #include <chrono>
 #include <cmath>
+#include <format>
 #include <fstream>
 #include <functional>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 #include "exceptions/exceptions.h"
 
@@ -18,11 +20,11 @@ void StudentDatabase::addStudent(std::shared_ptr<Student> student) {
     }
 }
 
-void StudentDatabase::addStudent(const std::string& name, const std::string& surname, int course,
+void StudentDatabase::addStudent(std::string_view name, std::string_view surname, int course,
                                  int semester, double averageGrade, bool isBudget) {
     for (const auto& existing : students) {
         if (existing->getName() == name && existing->getSurname() == surname) {
-            throw DuplicateStudentException(surname + " " + name);
+            throw DuplicateStudentException(std::format("{} {}", surname, name));
         }
     }
 
@@ -31,7 +33,7 @@ void StudentDatabase::addStudent(const std::string& name, const std::string& sur
     students.push_back(student);
 }
 
-bool StudentDatabase::removeStudent(const std::string& name, const std::string& surname) {
+bool StudentDatabase::removeStudent(std::string_view name, std::string_view surname) {
     auto it =
         std::remove_if(students.begin(), students.end(),
                        [&name, &surname](const std::shared_ptr<Student>& student) {
@@ -69,14 +71,14 @@ std::shared_ptr<Student> StudentDatabase::getStudent(size_t index) const {
     return nullptr;
 }
 
-std::string toLower(const std::string& str) {
-    std::string result = str;
+std::string toLower(std::string_view str) {
+    std::string result(str);
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
-std::vector<std::shared_ptr<Student>> StudentDatabase::searchByName(const std::string& name) const {
+std::vector<std::shared_ptr<Student>> StudentDatabase::searchByName(std::string_view name) const {
     std::string lowerName = toLower(name);
     return searchStudents([&lowerName](const std::shared_ptr<Student>& student) {
         return toLower(student->getName()).find(lowerName) != std::string::npos ||
@@ -85,7 +87,7 @@ std::vector<std::shared_ptr<Student>> StudentDatabase::searchByName(const std::s
 }
 
 std::vector<std::shared_ptr<Student>> StudentDatabase::searchBySurname(
-    const std::string& surname) const {
+    std::string_view surname) const {
     std::string lowerSurname = toLower(surname);
     return searchStudents([&lowerSurname](const std::shared_ptr<Student>& student) {
         return toLower(student->getSurname()).find(lowerSurname) != std::string::npos;
@@ -124,8 +126,8 @@ std::vector<std::shared_ptr<Student>> StudentDatabase::searchByCourse(int course
 
 void StudentDatabase::clear() { students.clear(); }
 
-bool StudentDatabase::saveToFile(const std::string& fname) const {
-    std::string actualFilename = fname.empty() ? filename : fname;
+bool StudentDatabase::saveToFile(std::string_view fname) const {
+    std::string actualFilename = fname.empty() ? filename : std::string(fname);
     std::ofstream file(actualFilename);
     if (!file.is_open()) {
         throw FileWriteException(actualFilename);
@@ -160,8 +162,8 @@ bool StudentDatabase::saveToFile(const std::string& fname) const {
     return true;
 }
 
-bool StudentDatabase::loadFromFile(const std::string& fname) {
-    std::string actualFilename = fname.empty() ? filename : fname;
+bool StudentDatabase::loadFromFile(std::string_view fname) {
+    std::string actualFilename = fname.empty() ? filename : std::string(fname);
     std::ifstream file(actualFilename);
     if (!file.is_open()) return false;
 

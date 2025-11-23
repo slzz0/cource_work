@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow {
 
    public:
     explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
     bool eventFilter(QObject* obj, QEvent* event) override;
 
@@ -70,7 +70,7 @@ class MainWindow : public QMainWindow {
     QLabel* recalculationWarning = nullptr;
 
     std::unique_ptr<StudentTableManager> tableManager;
-    StudentStatisticsUpdater statisticsUpdater;
+    [[no_unique_address]] StudentStatisticsUpdater statisticsUpdater;
     HistoryGradeGenerator historyGradeGenerator;
     std::unique_ptr<StudentHistoryDialog> historyDialog;
 };
