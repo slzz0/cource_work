@@ -191,9 +191,22 @@ void StudentHistoryDialog::showHistory(const std::shared_ptr<Student>& student) 
             int sem = sortedHistory[i].first;
             double grade = sortedHistory[i].second;
 
+            // Используем сохраненную историю стипендий, если она есть
+            // Иначе вычисляем из оценки (только для студентов на бюджете, для обратной совместимости)
             double prevScholarship = 0.0;
-            if (student->getIsBudget()) {
-                prevScholarship = ScholarshipCalculator::calculateScholarship(grade);
+            const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
+            auto scholarshipIt = scholarshipHistory.find(sem);
+            if (scholarshipIt != scholarshipHistory.end()) {
+                // Используем сохраненную стипендию из истории
+                prevScholarship = scholarshipIt->second;
+            } else {
+                // Если истории нет, вычисляем из оценки только если студент сейчас на бюджете
+                // Для студентов на платном не вычисляем, так как они могли быть переведены с бюджета
+                // и их стипендии должны быть сохранены в истории
+                if (student->getIsBudget()) {
+                    prevScholarship = ScholarshipCalculator::calculateScholarship(grade);
+                }
+                // Если студент на платном и истории нет - показываем 0 (стипендия не была сохранена)
             }
 
             int year = getYearForSemester(sem, admissionYear);

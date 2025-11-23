@@ -612,4 +612,3 @@ void MainWindow::showStudentHistory() {
 void MainWindow::fillMissingHistoryGrades() {
     historyGradeGenerator.fillMissingHistoryForAll(database.getAllStudents());
 }
-

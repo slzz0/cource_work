@@ -17,6 +17,7 @@ set(SOURCES
     src/main.cpp
     src/mainWindow.cpp
     src/scholarshipCalculator.cpp
+    src/scholarship.cpp
     src/student.cpp
     src/studentDatabase.cpp
     src/studentDialogBuilder.cpp
@@ -30,6 +31,7 @@ set(HEADERS
     include/exceptions.h
     include/mainWindow.h
     include/scholarshipcalculator.h
+    include/scholarship.h
     include/student.h
     include/studentDatabase.h
     include/studentDialogBuilder.h

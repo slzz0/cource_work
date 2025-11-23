@@ -17,6 +17,7 @@ class Student {
     int missedHours = 0;
     bool hasSocialScholarship = false;
     std::map<int, double> previousSemesterGrades;
+    std::map<int, double> previousSemesterScholarships;  // История стипендий по семестрам
 
    public:
     Student(const std::string& name, const std::string& surname, int course, int semester,
@@ -39,17 +40,17 @@ class Student {
     const std::map<int, double>& getPreviousSemesterGrades() const {
         return previousSemesterGrades;
     }
+    const std::map<int, double>& getPreviousSemesterScholarships() const {
+        return previousSemesterScholarships;
+    }
     std::string getHistoryString() const;
 
     void setName(const std::string& name) { this->name = name; }
     void setSurname(const std::string& surname) { this->surname = surname; }
     void setCourse(int course) { this->course = course; }
-    void setSemester(int semester) { 
-        this->semester = semester; 
-        this->course = (semester - 1) / 2 + 1;
-    }
+    void setSemester(int semester);
     void setAverageGrade(double averageGrade) { this->averageGrade = averageGrade; }
-    void setIsBudget(bool isBudget) { this->isBudget = isBudget; }
+    void setIsBudget(bool isBudget);
     void setMissedHours(int hours) { missedHours = hours; }
     void setHasSocialScholarship(bool has) { hasSocialScholarship = has; }
     void addPreviousGrade(int semester, double grade) { previousSemesterGrades[semester] = grade; }
