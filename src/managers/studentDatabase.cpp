@@ -8,6 +8,7 @@
 #include <fstream>
 #include <functional>
 #include <iomanip>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -34,14 +35,13 @@ void StudentDatabase::addStudent(std::string_view name, std::string_view surname
 }
 
 bool StudentDatabase::removeStudent(std::string_view name, std::string_view surname) {
-    auto it =
-        std::remove_if(students.begin(), students.end(),
-                       [&name, &surname](const std::shared_ptr<Student>& student) {
-                           return student->getName() == name && student->getSurname() == surname;
-                       });
+    auto [first, last] = std::ranges::remove_if(students,
+                                                [&name, &surname](const std::shared_ptr<Student>& student) {
+                                                    return student->getName() == name && student->getSurname() == surname;
+                                                });
 
-    if (it != students.end()) {
-        students.erase(it, students.end());
+    if (first != last) {
+        students.erase(first, last);
         return true;
     }
     return false;
@@ -56,8 +56,7 @@ bool StudentDatabase::removeStudent(size_t index) {
 }
 
 bool StudentDatabase::removeStudentPtr(const std::shared_ptr<Student>& studentPtr) {
-    auto it = std::find(students.begin(), students.end(), studentPtr);
-    if (it != students.end()) {
+    if (auto it = std::ranges::find(students, studentPtr); it != students.end()) {
         students.erase(it);
         return true;
     }
@@ -73,8 +72,8 @@ std::shared_ptr<Student> StudentDatabase::getStudent(size_t index) const {
 
 std::string toLower(std::string_view str) {
     std::string result(str);
-    std::transform(result.begin(), result.end(), result.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
+    std::ranges::transform(result, result.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
