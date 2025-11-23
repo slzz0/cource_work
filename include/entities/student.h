@@ -4,6 +4,7 @@
     #include <map>
     #include <memory>
     #include <string>
+    #include <string_view>
 
     class Student {
     private:
@@ -21,7 +22,7 @@
         int budgetSemester = -1;  // Семестр, когда студент стал бюджетником (-1 если всегда был бюджетником)
 
     public:
-        Student(const std::string& name, const std::string& surname, int course, int semester,
+        Student(std::string_view name, std::string_view surname, int course, int semester,
                 double averageGrade, bool isBudget);
 
         virtual ~Student() = default;
@@ -47,8 +48,8 @@
         int getBudgetSemester() const { return budgetSemester; }
         std::string getHistoryString() const;
 
-        void setName(const std::string& name) { this->name = name; }
-        void setSurname(const std::string& surname) { this->surname = surname; }
+        void setName(std::string_view name) { this->name = name; }
+        void setSurname(std::string_view surname) { this->surname = surname; }
         void setCourse(int course) { this->course = course; }
         void setSemester(int semester);
         void setAverageGrade(double averageGrade) { this->averageGrade = averageGrade; }

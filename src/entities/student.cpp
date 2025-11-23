@@ -6,7 +6,7 @@
 #include "exceptions/exceptions.h"
 #include "services/scholarshipCalculator.h"
 
-Student::Student(const std::string& name, const std::string& surname, int course, int semester,
+Student::Student(std::string_view name, std::string_view surname, int course, int semester,
                  double averageGrade, bool isBudget)
     : name(name),
       surname(surname),

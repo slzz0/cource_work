@@ -13,6 +13,24 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# Оптимизация MOC: ускорение обработки Q_OBJECT классов
+set(CMAKE_AUTOMOC_COMPILER_PREDEFINES ON)
+
+# Ускорение сборки: параллельная компиляция
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO")
+else()
+    # Для MinGW/GCC: оптимизация компиляции
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
+    # Для Debug сборки можно использовать -O1 вместо -g для ускорения
+    # set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O1")
+endif()
+
+# Оптимизация: уменьшение времени компиляции
+# CMake автоматически использует параллельную сборку при вызове make -j или cmake --build --parallel
+# Для ускорения используйте: cmake --build build --parallel $(nproc)
+
 set(SOURCES
     src/main.cpp
     src/ui/mainWindow.cpp
