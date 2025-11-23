@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QCoreApplication>
 #include <QStyleFactory>
 
 #include "ui/mainWindow.h"
@@ -7,14 +8,14 @@
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    app.setApplicationName("Scholarship Management System");
-    app.setApplicationVersion("1.0.0");
-    app.setOrganizationName("University (BSUIR)");
+    QCoreApplication::setApplicationName("Scholarship Management System");
+    QCoreApplication::setApplicationVersion("1.0.0");
+    QCoreApplication::setOrganizationName("University (BSUIR)");
 
-    app.setStyle(QStyleFactory::create("Fusion"));
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     MainWindow window;
     window.show();
 
-    return app.exec();
+    return QApplication::exec();
 }
