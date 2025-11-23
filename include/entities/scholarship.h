@@ -5,7 +5,7 @@
 
 class Scholarship {
 public:
-    Scholarship(double amount = 0.0, bool isSocial = false, int semester = 0);
+    explicit Scholarship(double amount = 0.0, bool isSocial = false, int semester = 0);
     
     double getAmount() const { return amount; }
     void setAmount(double value) { amount = value; }
