@@ -55,9 +55,6 @@ class MainWindow : public QMainWindow {
     QLineEdit* searchEdit = nullptr;
     QPushButton* searchButton = nullptr;
     QPushButton* addStudentButton = nullptr;
-    QPushButton* editButton = nullptr;
-    QPushButton* deleteButton = nullptr;
-    QPushButton* viewHistoryButton = nullptr;
 
     QLabel* totalStudentsLabel = nullptr;
     QLabel* budgetStudentsLabel = nullptr;

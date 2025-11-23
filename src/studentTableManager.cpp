@@ -4,10 +4,13 @@
 #include <QBrush>
 #include <QFont>
 #include <QHeaderView>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QStringList>
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QVariant>
+#include <QWidget>
 
 #include "student.h"
 
@@ -17,10 +20,10 @@ StudentTableManager::StudentTableManager(QTableWidget* tableWidget, QObject* par
 void StudentTableManager::configure(QObject* eventFilterOwner) {
     if (!table) return;
 
-    table->setColumnCount(9);
+    table->setColumnCount(10);
     QStringList headers = {"#",        "Name",         "Surname",       "Course",
                            "Semester", "Funding Type", "Average Grade", "Missed Hours",
-                           "Social"};
+                           "Social", "Actions"};
     table->setHorizontalHeaderLabels(headers);
     table->verticalHeader()->setVisible(false);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -91,13 +94,14 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
 
 void StudentTableManager::ensureScholarshipColumn(bool scholarshipsCalculated) {
     if (!table) return;
-    if (scholarshipsCalculated && table->columnCount() == 9) {
-        table->insertColumn(9);
-        table->setHorizontalHeaderItem(9, new QTableWidgetItem("Scholarship (BYN)"));
+    int baseColumns = 10; // 9 data columns + 1 Actions column
+    if (scholarshipsCalculated && table->columnCount() == baseColumns) {
+        table->insertColumn(baseColumns);
+        table->setHorizontalHeaderItem(baseColumns, new QTableWidgetItem("Scholarship (BYN)"));
         table->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
         table->horizontalHeader()->setStretchLastSection(true);
-    } else if (!scholarshipsCalculated && table->columnCount() == 10) {
-        table->removeColumn(9);
+    } else if (!scholarshipsCalculated && table->columnCount() == baseColumns + 1) {
+        table->removeColumn(baseColumns);
         table->horizontalHeader()->setStretchLastSection(false);
     }
 }
@@ -201,7 +205,11 @@ void StudentTableManager::populate(const std::vector<std::shared_ptr<Student>>& 
         socialItem->setFont(itemFont);
         table->setItem(row, 8, socialItem);
 
-        if (scholarshipsCalculated && table->columnCount() > 9) {
+        // Actions column with icon buttons
+        QWidget* actionsWidget = createActionButtons(row);
+        table->setCellWidget(row, 9, actionsWidget);
+
+        if (scholarshipsCalculated && table->columnCount() > 10) {
             QTableWidgetItem* scholarshipItem = new QTableWidgetItem(QString::number(scholarship, 'f', 2));
             scholarshipItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
             scholarshipItem->setData(Qt::UserRole, 0);
@@ -218,13 +226,13 @@ void StudentTableManager::populate(const std::vector<std::shared_ptr<Student>>& 
                 scholarshipItem->setFont(scholarshipFont);
                 scholarshipItem->setForeground(QBrush(QColor(180, 180, 180)));
             }
-            table->setItem(row, 9, scholarshipItem);
+            table->setItem(row, 10, scholarshipItem);
         }
     }
 
     // Настройка размеров колонок
-    if (table->columnCount() == 10 && scholarshipsCalculated) {
-        for (int i = 0; i < 9; ++i) {
+    if (table->columnCount() == 11 && scholarshipsCalculated) {
+        for (int i = 0; i < 10; ++i) {
             table->resizeColumnToContents(i);
         }
         table->horizontalHeader()->setStretchLastSection(true);
@@ -239,6 +247,7 @@ void StudentTableManager::populate(const std::vector<std::shared_ptr<Student>>& 
     table->setColumnWidth(6, 110); // Average Grade
     table->setColumnWidth(7, 100); // Missed Hours
     table->setColumnWidth(8, 70);  // Social
+    table->setColumnWidth(9, 120); // Actions
 
     updateRowNumbers();
     table->blockSignals(false);
@@ -278,6 +287,9 @@ void StudentTableManager::updateSelectionVisual() {
         bool isSelected = table->selectionModel() && table->selectionModel()->isRowSelected(row);
 
         for (int col = 0; col < table->columnCount(); ++col) {
+            // Skip Actions column (col 9) as it contains widgets, not items
+            if (col == 9) continue;
+            
             QTableWidgetItem* item = table->item(row, col);
             if (!item) continue;
 
@@ -300,9 +312,13 @@ void StudentTableManager::updateSelectionVisual() {
                     item->setForeground(QBrush(redColor));
                 } else if (col == 7) {
                     item->setForeground(QBrush(defaultColor));
-                } else if (col == 9 && item->data(Qt::UserRole + 2).isValid()) {
+                } else if (col == 10 && item->data(Qt::UserRole + 2).isValid()) {
+                    // Scholarship column
                     QColor storedColor = item->data(Qt::UserRole + 1).value<QColor>();
                     item->setForeground(QBrush(storedColor.isValid() ? storedColor : defaultColor));
+                } else if (col == 9) {
+                    // Actions column - skip, it's a widget
+                    continue;
                 } else {
                     item->setForeground(QBrush(defaultColor));
                 }
@@ -331,5 +347,105 @@ void StudentTableManager::updateRowNumbers() {
             
             table->setItem(row, 0, numItem);
         }
+    }
+}
+
+QWidget* StudentTableManager::createActionButtons(int row) {
+    QWidget* widget = new QWidget();
+    QHBoxLayout* layout = new QHBoxLayout(widget);
+    layout->setContentsMargins(5, 2, 5, 2);
+    layout->setSpacing(5);
+    layout->setAlignment(Qt::AlignCenter);
+
+    // Edit button (pencil icon)
+    QPushButton* editBtn = new QPushButton("✏️");
+    editBtn->setToolTip("Edit Student");
+    editBtn->setFixedSize(30, 30);
+    editBtn->setStyleSheet(
+        "QPushButton {"
+        "background-color: #0d7377;"
+        "color: white;"
+        "border: none;"
+        "border-radius: 4px;"
+        "font-size: 14px;"
+        "}"
+        "QPushButton:hover {"
+        "background-color: #14a085;"
+        "}"
+        "QPushButton:pressed {"
+        "background-color: #0a5d61;"
+        "}");
+    editBtn->setProperty("row", row);
+    connect(editBtn, &QPushButton::clicked, this, &StudentTableManager::onEditClicked);
+    layout->addWidget(editBtn);
+
+    // View history button (eye icon)
+    QPushButton* viewBtn = new QPushButton("👁️");
+    viewBtn->setToolTip("View History");
+    viewBtn->setFixedSize(30, 30);
+    viewBtn->setStyleSheet(
+        "QPushButton {"
+        "background-color: #0d7377;"
+        "color: white;"
+        "border: none;"
+        "border-radius: 4px;"
+        "font-size: 14px;"
+        "}"
+        "QPushButton:hover {"
+        "background-color: #14a085;"
+        "}"
+        "QPushButton:pressed {"
+        "background-color: #0a5d61;"
+        "}");
+    viewBtn->setProperty("row", row);
+    connect(viewBtn, &QPushButton::clicked, this, &StudentTableManager::onViewClicked);
+    layout->addWidget(viewBtn);
+
+    // Delete button (cross/X icon)
+    QPushButton* deleteBtn = new QPushButton("❌");
+    deleteBtn->setToolTip("Delete Student");
+    deleteBtn->setFixedSize(30, 30);
+    deleteBtn->setStyleSheet(
+        "QPushButton {"
+        "background-color: #d32f2f;"
+        "color: white;"
+        "border: none;"
+        "border-radius: 4px;"
+        "font-size: 14px;"
+        "}"
+        "QPushButton:hover {"
+        "background-color: #f44336;"
+        "}"
+        "QPushButton:pressed {"
+        "background-color: #b71c1c;"
+        "}");
+    deleteBtn->setProperty("row", row);
+    connect(deleteBtn, &QPushButton::clicked, this, &StudentTableManager::onDeleteClicked);
+    layout->addWidget(deleteBtn);
+
+    return widget;
+}
+
+void StudentTableManager::onEditClicked() {
+    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    if (btn) {
+        int row = btn->property("row").toInt();
+        emit editStudentRequested(row);
+    }
+}
+
+void StudentTableManager::onDeleteClicked() {
+    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    if (btn) {
+        int row = btn->property("row").toInt();
+        emit deleteStudentRequested(row);
+    }
+}
+
+void StudentTableManager::onViewClicked() {
+    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    if (btn) {
+        int row = btn->property("row").toInt();
+        emit viewHistoryRequested(row);
     }
 }

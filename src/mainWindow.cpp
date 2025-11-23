@@ -9,8 +9,8 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QHeaderView>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QMouseEvent>
 #include <QStringList>
 #include <QVBoxLayout>
@@ -25,7 +25,6 @@
 
 #include "exceptions.h"
 #include "studentDialogBuilder.h"
-
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setupUI();
@@ -56,7 +55,7 @@ MainWindow::~MainWindow() = default;
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
     if (obj == studentTable->horizontalHeader() && event->type() == QEvent::MouseButtonPress) {
-        return true;  
+        return true;
     }
 
     return QMainWindow::eventFilter(obj, event);
@@ -161,7 +160,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     // Create table first
     createStudentTable();
-    tableButtonsLayout->addWidget(studentTable, 3); // Table takes 3 parts of space
+    tableButtonsLayout->addWidget(studentTable, 3);  // Table takes 3 parts of space
 
     // Right side - Buttons column in a styled container
     QGroupBox* buttonsGroup = new QGroupBox("Actions", this);
@@ -182,13 +181,13 @@ void MainWindow::createStudentsTab(QWidget* tab) {
         "padding: 0 5px;"
         "color: #14a085;"
         "}");
-    
+
     QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsGroup);
     buttonsLayout->setSpacing(10);
     buttonsLayout->setContentsMargins(15, 20, 15, 15);
 
     // Common button style
-    QString buttonStyle = 
+    QString buttonStyle =
         "QPushButton {"
         "background-color: #0d7377;"
         "color: white;"
@@ -215,23 +214,6 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     connect(addStudentButton, &QPushButton::clicked, this, &MainWindow::addStudent);
     buttonsLayout->addWidget(addStudentButton);
 
-    // Edit student button
-    editButton = new QPushButton("Edit Student", this);
-    editButton->setStyleSheet(buttonStyle);
-    connect(editButton, &QPushButton::clicked, this, &MainWindow::editSelectedStudent);
-    buttonsLayout->addWidget(editButton);
-
-    // Delete student button
-    deleteButton = new QPushButton("Delete Student", this);
-    deleteButton->setStyleSheet(buttonStyle);
-    connect(deleteButton, &QPushButton::clicked, this, &MainWindow::deleteSelectedStudent);
-    buttonsLayout->addWidget(deleteButton);
-
-    // View history button
-    viewHistoryButton = new QPushButton("View History", this);
-    viewHistoryButton->setStyleSheet(buttonStyle);
-    connect(viewHistoryButton, &QPushButton::clicked, this, &MainWindow::showStudentHistory);
-    buttonsLayout->addWidget(viewHistoryButton);
 
     // Calculate scholarships button
     calculateButton = new QPushButton("Calculate Scholarships", this);
@@ -250,12 +232,14 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     }
 
     buttonsLayout->addStretch();
-    tableButtonsLayout->addWidget(buttonsGroup, 1); // Buttons take 1 part of space
+    tableButtonsLayout->addWidget(buttonsGroup, 1);  // Buttons take 1 part of space
 
     mainLayout->addLayout(tableButtonsLayout, 1);
 
-    recalculationWarning =
-        new QLabel("WARNING: A new student has been added, or a student has been transferred to a budget/paid. Please recalculate scholarships.", this);
+    recalculationWarning = new QLabel(
+        "WARNING: A new student has been added, or a student has been transferred to a "
+        "budget/paid. Please recalculate scholarships.",
+        this);
     recalculationWarning->setStyleSheet(
         "QLabel {"
         "background-color: #DC143C;"
@@ -321,9 +305,9 @@ void MainWindow::createStatisticsTab(QWidget* tab) {
 
     semesterStatsTable = new QTableWidget(this);
     semesterStatsTable->setColumnCount(3);
-    semesterStatsTable->setHorizontalHeaderLabels(
-        QStringList() << "Year / Session" << "Students Count"
-                      << "Total Scholarship (BYN)");
+    semesterStatsTable->setHorizontalHeaderLabels(QStringList()
+                                                  << "Year / Session" << "Students Count"
+                                                  << "Total Scholarship (BYN)");
     semesterStatsTable->verticalHeader()->setVisible(false);
     semesterStatsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     semesterStatsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -371,19 +355,28 @@ void MainWindow::createStudentTable() {
     studentTable = new QTableWidget(this);
     tableManager = std::make_unique<StudentTableManager>(studentTable, this);
     tableManager->configure(this);
-    connect(studentTable, &QTableWidget::itemSelectionChanged, this, [this]() {
-        bool hasSelection = studentTable->currentRow() >= 0;
-        editButton->setEnabled(hasSelection);
-        deleteButton->setEnabled(hasSelection);
-        viewHistoryButton->setEnabled(hasSelection);
+    // Connect action button signals from table manager to slots
+    connect(tableManager.get(), &StudentTableManager::editStudentRequested, this, [this](int row) {
+        if (row >= 0 && row < static_cast<int>(currentView.size())) {
+            studentTable->setCurrentCell(row, 0);
+            editSelectedStudent();
+        }
     });
-    connect(studentTable, &QTableWidget::currentItemChanged, this,
-            [this](QTableWidgetItem*, QTableWidgetItem*) {
-                bool hasSelection = studentTable->currentRow() >= 0;
-                editButton->setEnabled(hasSelection);
-                deleteButton->setEnabled(hasSelection);
-                viewHistoryButton->setEnabled(hasSelection);
+
+    connect(tableManager.get(), &StudentTableManager::deleteStudentRequested, this,
+            [this](int row) {
+                if (row >= 0 && row < static_cast<int>(currentView.size())) {
+                    studentTable->setCurrentCell(row, 0);
+                    deleteSelectedStudent();
+                }
             });
+
+    connect(tableManager.get(), &StudentTableManager::viewHistoryRequested, this, [this](int row) {
+        if (row >= 0 && row < static_cast<int>(currentView.size())) {
+            studentTable->setCurrentCell(row, 0);
+            showStudentHistory();
+        }
+    });
 }
 
 void MainWindow::addStudent() {
@@ -391,14 +384,14 @@ void MainWindow::addStudent() {
     StudentDialogResult result = builder.showAddDialog();
 
     if (!result.isAccepted()) {
-            return;
-        }
+        return;
+    }
 
-        try {
+    try {
         int semester = result.getSemester();
         int course = (semester - 1) / 2 + 1;
 
-            auto student = std::make_shared<Student>(
+        auto student = std::make_shared<Student>(
             result.getName().toStdString(), result.getSurname().toStdString(), course, semester,
             result.getAverageGrade(), result.isBudget());
 
@@ -407,29 +400,29 @@ void MainWindow::addStudent() {
 
         historyGradeGenerator.ensureHistoryForNewStudent(*student, semester);
 
-            database.addStudent(student);
+        database.addStudent(student);
 
-            if (scholarshipsCalculated) {
-                scholarshipsNeedRecalculation = true;
-                recalculationWarning->setVisible(true);
-            }
+        if (scholarshipsCalculated) {
+            scholarshipsNeedRecalculation = true;
+            recalculationWarning->setVisible(true);
+        }
 
-            showAllStudents();
-            updateStatistics();
+        showAllStudents();
+        updateStatistics();
 
-            try {
-                database.saveToFile();
-            } catch (const FileWriteException& e) {
-                QMessageBox::warning(this, "File Error", e.what());
-            }
+        try {
+            database.saveToFile();
+        } catch (const FileWriteException& e) {
+            QMessageBox::warning(this, "File Error", e.what());
+        }
 
-            QMessageBox::information(this, "Success", "Student added successfully!");
-        } catch (const ValidationException& e) {
-            QMessageBox::critical(this, "Validation Error", e.what());
-        } catch (const ScholarshipException& e) {
-            QMessageBox::critical(this, "Error", e.what());
-        } catch (const std::exception& e) {
-            QMessageBox::critical(this, "Unexpected Error", e.what());
+        QMessageBox::information(this, "Success", "Student added successfully!");
+    } catch (const ValidationException& e) {
+        QMessageBox::critical(this, "Validation Error", e.what());
+    } catch (const ScholarshipException& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, "Unexpected Error", e.what());
     }
 }
 
@@ -452,7 +445,7 @@ void MainWindow::searchStudent() {
         updateStudentTable(results);
     } catch (const StudentNotFoundException& e) {
         QMessageBox::information(this, "Not Found", e.what());
-        showAllStudents();  
+        showAllStudents();
     } catch (const std::exception& e) {
         QMessageBox::critical(this, "Search Error", e.what());
     }
@@ -515,17 +508,17 @@ void MainWindow::editSelectedStudent() {
     StudentDialogResult result = builder.showEditDialog(student);
 
     if (!result.isAccepted()) {
-            return;
-        }
+        return;
+    }
 
-        try {
-            int oldSemester = student->getSemester();
-            double oldGrade = student->getAverageGrade();
+    try {
+        int oldSemester = student->getSemester();
+        double oldGrade = student->getAverageGrade();
         int newSemester = result.getSemester();
 
         student->setName(result.getName().toStdString());
         student->setSurname(result.getSurname().toStdString());
-            student->setSemester(newSemester);
+        student->setSemester(newSemester);
         student->setAverageGrade(result.getAverageGrade());
         student->setIsBudget(result.isBudget());
         student->setMissedHours(result.getMissedHours());
@@ -533,25 +526,25 @@ void MainWindow::editSelectedStudent() {
 
         historyGradeGenerator.handleSemesterChange(*student, oldSemester, oldGrade, newSemester);
 
-            if (scholarshipsCalculated) {
-                scholarshipsNeedRecalculation = true;
-                recalculationWarning->setVisible(true);
-            }
+        if (scholarshipsCalculated) {
+            scholarshipsNeedRecalculation = true;
+            recalculationWarning->setVisible(true);
+        }
 
-            showAllStudents();
-            updateStatistics();
+        showAllStudents();
+        updateStatistics();
 
-            try {
-                database.saveToFile();
-            } catch (const FileWriteException& e) {
-                QMessageBox::warning(this, "File Error", e.what());
-            }
+        try {
+            database.saveToFile();
+        } catch (const FileWriteException& e) {
+            QMessageBox::warning(this, "File Error", e.what());
+        }
 
-            QMessageBox::information(this, "Success", "Student data updated.");
-        } catch (const ValidationException& e) {
-            QMessageBox::critical(this, "Validation Error", e.what());
-        } catch (const ScholarshipException& e) {
-            QMessageBox::critical(this, "Error", e.what());
+        QMessageBox::information(this, "Success", "Student data updated.");
+    } catch (const ValidationException& e) {
+        QMessageBox::critical(this, "Validation Error", e.what());
+    } catch (const ScholarshipException& e) {
+        QMessageBox::critical(this, "Error", e.what());
     }
 }
 

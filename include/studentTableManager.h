@@ -21,14 +21,23 @@ public:
     void populate(const std::vector<std::shared_ptr<Student>>& students, bool scholarshipsCalculated);
     void updateRowNumbers();
 
+signals:
+    void editStudentRequested(int row);
+    void deleteStudentRequested(int row);
+    void viewHistoryRequested(int row);
+
 private slots:
     void updateSelectionVisual();
+    void onEditClicked();
+    void onDeleteClicked();
+    void onViewClicked();
 
 private:
     QTableWidget* table = nullptr;
 
     void ensureScholarshipColumn(bool scholarshipsCalculated);
     void applyMissedHoursStyling();
+    QWidget* createActionButtons(int row);
 };
 
 #endif
