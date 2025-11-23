@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "student.h"
+#include "entities/student.h"
 
 
 class StudentDatabase {

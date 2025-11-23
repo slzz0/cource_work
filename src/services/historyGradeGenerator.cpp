@@ -1,8 +1,8 @@
-#include "historyGradeGenerator.h"
+#include "services/historyGradeGenerator.h"
 
 #include <cmath>
 
-#include "student.h"
+#include "entities/student.h"
 
 HistoryGradeGenerator::HistoryGradeGenerator()
     : generator(std::random_device{}()), distribution(5.0, 10.0) {}

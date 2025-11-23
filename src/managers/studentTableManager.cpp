@@ -1,4 +1,4 @@
-#include "studentTableManager.h"
+#include "managers/studentTableManager.h"
 
 #include <QAbstractItemView>
 #include <QBrush>
@@ -12,7 +12,7 @@
 #include <QVariant>
 #include <QWidget>
 
-#include "student.h"
+#include "entities/student.h"
 
 StudentTableManager::StudentTableManager(QTableWidget* tableWidget, QObject* parent)
     : QObject(parent), table(tableWidget) {}

@@ -1,4 +1,4 @@
-#include "studentDatabase.h"
+#include "managers/studentDatabase.h"
 
 #include <algorithm>
 #include <cctype>
@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-#include "exceptions.h"
+#include "exceptions/exceptions.h"
 
 void StudentDatabase::addStudent(std::shared_ptr<Student> student) {
     if (student != nullptr) {

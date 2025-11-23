@@ -15,30 +15,30 @@ set(CMAKE_AUTORCC ON)
 
 set(SOURCES
     src/main.cpp
-    src/mainWindow.cpp
-    src/scholarshipCalculator.cpp
-    src/scholarship.cpp
-    src/student.cpp
-    src/studentDatabase.cpp
-    src/studentDialogBuilder.cpp
-    src/studentTableManager.cpp
-    src/studentStatisticsUpdater.cpp
-    src/studentHistoryDialog.cpp
-    src/historyGradeGenerator.cpp
+    src/ui/mainWindow.cpp
+    src/services/scholarshipCalculator.cpp
+    src/entities/scholarship.cpp
+    src/entities/student.cpp
+    src/managers/studentDatabase.cpp
+    src/ui/studentDialogBuilder.cpp
+    src/managers/studentTableManager.cpp
+    src/services/studentStatisticsUpdater.cpp
+    src/ui/studentHistoryDialog.cpp
+    src/services/historyGradeGenerator.cpp
 )
 
 set(HEADERS
-    include/exceptions.h
-    include/mainWindow.h
-    include/scholarshipcalculator.h
-    include/scholarship.h
-    include/student.h
-    include/studentDatabase.h
-    include/studentDialogBuilder.h
-    include/studentTableManager.h
-    include/studentStatisticsUpdater.h
-    include/studentHistoryDialog.h
-    include/historyGradeGenerator.h
+    include/exceptions/exceptions.h
+    include/ui/mainWindow.h
+    include/services/scholarshipCalculator.h
+    include/entities/scholarship.h
+    include/entities/student.h
+    include/managers/studentDatabase.h
+    include/ui/studentDialogBuilder.h
+    include/managers/studentTableManager.h
+    include/services/studentStatisticsUpdater.h
+    include/ui/studentHistoryDialog.h
+    include/services/historyGradeGenerator.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

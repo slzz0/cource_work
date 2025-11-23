@@ -12,12 +12,13 @@
 #include <QTableWidget>
 #include <memory>
 
-#include "historyGradeGenerator.h"
-#include "scholarshipCalculator.h"
-#include "studentDatabase.h"
-#include "studentHistoryDialog.h"
-#include "studentStatisticsUpdater.h"
-#include "studentTableManager.h"
+#include "entities/student.h"
+#include "services/historyGradeGenerator.h"
+#include "services/scholarshipCalculator.h"
+#include "managers/studentDatabase.h"
+#include "ui/studentHistoryDialog.h"
+#include "services/studentStatisticsUpdater.h"
+#include "managers/studentTableManager.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

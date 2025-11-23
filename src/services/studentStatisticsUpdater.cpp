@@ -1,4 +1,4 @@
-#include "studentStatisticsUpdater.h"
+#include "services/studentStatisticsUpdater.h"
 
 #include <QBrush>
 #include <QFont>
@@ -7,8 +7,8 @@
 #include <QTableWidgetItem>
 #include <set>
 
-#include "scholarshipCalculator.h"
-#include "student.h"
+#include "services/scholarshipCalculator.h"
+#include "entities/student.h"
 
 void StudentStatisticsUpdater::updateGeneralStatistics(
     const std::vector<std::shared_ptr<Student>>& students,

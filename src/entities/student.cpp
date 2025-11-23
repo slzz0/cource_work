@@ -1,10 +1,10 @@
-#include "student.h"
+#include "entities/student.h"
 
 #include <iomanip>
 #include <sstream>
 
-#include "exceptions.h"
-#include "scholarshipCalculator.h"
+#include "exceptions/exceptions.h"
+#include "services/scholarshipCalculator.h"
 
 Student::Student(const std::string& name, const std::string& surname, int course, int semester,
                  double averageGrade, bool isBudget)

@@ -1,4 +1,4 @@
-#include "studentDialogBuilder.h"
+#include "ui/studentDialogBuilder.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -11,7 +11,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 
-#include "student.h"
+#include "entities/student.h"
 
 namespace {
 QString primaryButtonStyle() {

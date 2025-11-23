@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "student.h"
+#include "entities/student.h"
 
 class ScholarshipCalculator {
    public:

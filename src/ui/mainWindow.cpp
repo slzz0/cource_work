@@ -1,4 +1,4 @@
-#include "mainWindow.h"
+#include "ui/mainWindow.h"
 
 #include <QApplication>
 #include <QBrush>
@@ -23,8 +23,8 @@
 #include <sstream>
 #include <vector>
 
-#include "exceptions.h"
-#include "studentDialogBuilder.h"
+#include "exceptions/exceptions.h"
+#include "ui/studentDialogBuilder.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setupUI();
@@ -160,7 +160,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     // Create table first
     createStudentTable();
-    tableButtonsLayout->addWidget(studentTable, 19);  // Table takes 19 parts of space (3.8:1 ratio)
+    tableButtonsLayout->addWidget(studentTable, 51);  // Table takes 51 parts of space (2.55:1 ratio)
 
     // Right side - Buttons column in a styled container
     QGroupBox* buttonsGroup = new QGroupBox("Actions", this);
@@ -231,7 +231,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     }
 
     buttonsLayout->addStretch();
-    tableButtonsLayout->addWidget(buttonsGroup, 5);  // Buttons take 5 parts of space (19:5 = 3.8:1 ratio with table)
+    tableButtonsLayout->addWidget(buttonsGroup, 20);  // Buttons take 20 parts of space (51:20 = 2.55:1 ratio with table)
 
     mainLayout->addLayout(tableButtonsLayout, 1);
 

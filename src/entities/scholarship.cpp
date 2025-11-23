@@ -1,9 +1,12 @@
-#include "scholarshipCalculator.h"
+#include "entities/scholarship.h"
 
 #include <iomanip>
 #include <sstream>
 
-double ScholarshipCalculator::calculateScholarship(double averageGrade) {
+Scholarship::Scholarship(double amount, bool isSocial, int semester)
+    : amount(amount), isSocial(isSocial), semester(semester) {}
+
+double Scholarship::calculateScholarshipAmount(double averageGrade) {
     if (averageGrade >= 9.0 && averageGrade <= 10.0) {
         return SCHOLARSHIP_9_0_10_0;
     } else if (averageGrade >= 8.0 && averageGrade < 9.0) {
@@ -16,14 +19,7 @@ double ScholarshipCalculator::calculateScholarship(double averageGrade) {
     return 0.0;
 }
 
-double ScholarshipCalculator::calculateScholarshipForStudent(const Student* student) {
-    if (student == nullptr) {
-        return 0.0;
-    }
-    return calculateScholarship(student->calculateAverageGrade());
-}
-
-std::string ScholarshipCalculator::getScholarshipBracket(double averageGrade) {
+std::string Scholarship::getScholarshipBracket(double averageGrade) {
     if (averageGrade >= 9.0 && averageGrade <= 10.0) {
         return "9.0 - 10.0";
     } else if (averageGrade >= 8.0 && averageGrade < 9.0) {
@@ -35,3 +31,4 @@ std::string ScholarshipCalculator::getScholarshipBracket(double averageGrade) {
     }
     return "No scholarship";
 }
+

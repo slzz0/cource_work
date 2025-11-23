@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 
-#include "mainWindow.h"
+#include "ui/mainWindow.h"
 
 
 int main(int argc, char* argv[]) {

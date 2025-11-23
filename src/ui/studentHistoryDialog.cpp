@@ -1,4 +1,4 @@
-#include "studentHistoryDialog.h"
+#include "ui/studentHistoryDialog.h"
 
 #include <QBrush>
 #include <QCheckBox>
@@ -14,8 +14,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "scholarshipCalculator.h"
-#include "student.h"
+#include "services/scholarshipCalculator.h"
+#include "entities/student.h"
 
 StudentHistoryDialog::StudentHistoryDialog(QWidget* parent) : parentWidget(parent) {}
 
