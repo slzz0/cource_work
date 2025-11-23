@@ -62,6 +62,15 @@
         void recalculateScholarship();
         double getScholarship() const { return scholarship; }
         void setScholarship(double s) { scholarship = s; }
+
+    private:
+        void saveScholarshipsForBudgetSemesters(int startSemester);
+        void handleBudgetToPaidTransition();
+        void handlePaidToBudgetTransition();
+        void saveHistoricalScholarships();
+        bool isEligibleForScholarship() const;
+        void calculateCurrentScholarship();
+        void saveCurrentScholarshipToHistory();
     };
 
     #endif

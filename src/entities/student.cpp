@@ -1,5 +1,6 @@
 #include "entities/student.h"
 
+#include <format>
 #include <iomanip>
 #include <sstream>
 
@@ -42,38 +43,13 @@ double Student::calculateAverageGrade() const { return averageGrade; }
 std::string Student::getFullName() const { return surname + " " + name; }
 
 std::string Student::getStudentInfo() const {
-    std::ostringstream oss;
-    oss << "Student: " << getFullName() << "\n"
-        << "Course: " << course << ", Semester: " << semester << "\n"
-        << "Average Grade: " << std::fixed << std::setprecision(2) << calculateAverageGrade();
-    return oss.str();
+    return std::format("Student: {}\nCourse: {}, Semester: {}\nAverage Grade: {:.2f}",
+                       getFullName(), course, semester, calculateAverageGrade());
 }
 
 void Student::recalculateScholarship() {
     // Сохраняем стипендии за все предыдущие семестры перед пересчетом
-    // Это гарантирует, что при переводе на платное стипендии не будут потеряны
-    // НО: рассчитываем стипендии только за семестры, когда студент был бюджетником
-    if (isBudget && budgetSemester > 0) {
-        for (const auto& gradePair : previousSemesterGrades) {
-            int sem = gradePair.first;
-            double grade = gradePair.second;
-            
-            // Рассчитываем стипендию только за семестры, начиная с budgetSemester
-            // (когда студент стал бюджетником)
-            if (sem >= budgetSemester) {
-                // Если стипендия для этого семестра еще не сохранена, вычисляем и сохраняем
-                if (previousSemesterScholarships.find(sem) == previousSemesterScholarships.end()) {
-                    double calculatedScholarship = ScholarshipCalculator::calculateScholarship(grade);
-                    if (hasSocialScholarship) {
-                        calculatedScholarship += ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
-                    }
-                    if (calculatedScholarship > 0.0) {
-                        previousSemesterScholarships[sem] = calculatedScholarship;
-                    }
-                }
-            }
-        }
-    }
+    saveHistoricalScholarships();
     
     scholarship = 0.0;
 
@@ -81,28 +57,48 @@ void Student::recalculateScholarship() {
         return;
     }
 
-    // Проверяем, что текущий семестр >= budgetSemester (когда студент стал бюджетником)
-    if (budgetSemester > 0 && semester < budgetSemester) {
-        return;  // Студент еще не был бюджетником в этом семестре
+    if (!isEligibleForScholarship()) {
+        return;
     }
 
+    calculateCurrentScholarship();
+    saveCurrentScholarshipToHistory();
+}
+
+void Student::saveHistoricalScholarships() {
+    // Сохраняем стипендии за все предыдущие семестры перед пересчетом
+    // Это гарантирует, что при переводе на платное стипендии не будут потеряны
+    // НО: рассчитываем стипендии только за семестры, когда студент был бюджетником
+    if (!isBudget || budgetSemester <= 0) {
+        return;
+    }
+    
+    saveScholarshipsForBudgetSemesters(budgetSemester);
+}
+
+bool Student::isEligibleForScholarship() const {
+    // Проверяем, что текущий семестр >= budgetSemester (когда студент стал бюджетником)
+    if (budgetSemester > 0 && semester < budgetSemester) {
+        return false;  // Студент еще не был бюджетником в этом семестре
+    }
+    return true;
+}
+
+void Student::calculateCurrentScholarship() {
     if (missedHours >= 12) {
         if (hasSocialScholarship) {
             scholarship = ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
-        }
-        // Сохраняем стипендию в историю для текущего семестра после пересчета
-        if (scholarship > 0.0) {
-            previousSemesterScholarships[semester] = scholarship;
         }
         return;
     }
 
     scholarship = ScholarshipCalculator::calculateScholarship(averageGrade);
-
     if (hasSocialScholarship) {
         scholarship += ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
     }
-    
+}
+
+void Student::saveCurrentScholarshipToHistory() {
     // Сохраняем стипендию в историю для текущего семестра после пересчета
     if (scholarship > 0.0) {
         previousSemesterScholarships[semester] = scholarship;
@@ -122,50 +118,13 @@ void Student::setSemester(int newSemester) {
 void Student::setIsBudget(bool newIsBudget) {
     // Если переводим с бюджета на платное, сохраняем стипендии за ВСЕ предыдущие семестры
     if (isBudget && !newIsBudget) {
-        // Сохраняем текущую стипендию для текущего семестра
-        if (scholarship > 0.0) {
-            previousSemesterScholarships[semester] = scholarship;
-        }
-        
-        // Сохраняем стипендии за все предыдущие семестры из истории оценок
-        // Только за семестры, когда студент был бюджетником (начиная с budgetSemester)
-        // Это гарантирует, что стипендии за прошлые семестры не будут потеряны
-        if (budgetSemester > 0) {
-            for (const auto& gradePair : previousSemesterGrades) {
-                int sem = gradePair.first;
-                double grade = gradePair.second;
-                
-                // Сохраняем стипендии только за семестры, когда студент был бюджетником
-                if (sem >= budgetSemester) {
-                    // Если стипендия для этого семестра еще не сохранена, вычисляем и сохраняем
-                    if (previousSemesterScholarships.find(sem) == previousSemesterScholarships.end()) {
-                        double calculatedScholarship = ScholarshipCalculator::calculateScholarship(grade);
-                        if (hasSocialScholarship) {
-                            calculatedScholarship += ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
-                        }
-                        if (calculatedScholarship > 0.0) {
-                            previousSemesterScholarships[sem] = calculatedScholarship;
-                        }
-                    }
-                }
-            }
-        }
-        // Сбрасываем budgetSemester при переводе на платное
-        budgetSemester = -1;
+        handleBudgetToPaidTransition();
     }
     // Если переводим с платного на бюджет, сохраняем текущий семестр как начало бюджетного обучения
     else if (!isBudget && newIsBudget) {
-        budgetSemester = semester;
-        // Удаляем стипендии за семестры до budgetSemester, так как студент был платным
-        auto it = previousSemesterScholarships.begin();
-        while (it != previousSemesterScholarships.end()) {
-            if (it->first < budgetSemester) {
-                it = previousSemesterScholarships.erase(it);
-            } else {
-                ++it;
-            }
-        }
+        handlePaidToBudgetTransition();
     }
+    
     isBudget = newIsBudget;
     // При переводе на платное стипендия обнуляется только для текущего семестра
     // История стипендий за предыдущие семестры сохраняется
@@ -174,17 +133,69 @@ void Student::setIsBudget(bool newIsBudget) {
     }
 }
 
+void Student::handleBudgetToPaidTransition() {
+    // Сохраняем текущую стипендию для текущего семестра
+    if (scholarship > 0.0) {
+        previousSemesterScholarships[semester] = scholarship;
+    }
+    
+    // Сохраняем стипендии за все предыдущие семестры из истории оценок
+    // Только за семестры, когда студент был бюджетником (начиная с budgetSemester)
+    if (budgetSemester > 0) {
+        saveScholarshipsForBudgetSemesters(budgetSemester);
+    }
+    // Сбрасываем budgetSemester при переводе на платное
+    budgetSemester = -1;
+}
+
+void Student::handlePaidToBudgetTransition() {
+    budgetSemester = semester;
+    // Удаляем стипендии за семестры до budgetSemester, так как студент был платным
+    auto it = previousSemesterScholarships.begin();
+    while (it != previousSemesterScholarships.end()) {
+        if (it->first < budgetSemester) {
+            it = previousSemesterScholarships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void Student::saveScholarshipsForBudgetSemesters(int startSemester) {
+    for (const auto& [sem, grade] : previousSemesterGrades) {
+        // Сохраняем стипендии только за семестры, когда студент был бюджетником
+        if (sem < startSemester) {
+            continue;
+        }
+        
+        // Если стипендия для этого семестра еще не сохранена, вычисляем и сохраняем
+        if (previousSemesterScholarships.find(sem) != previousSemesterScholarships.end()) {
+            continue;
+        }
+        
+        double calculatedScholarship = ScholarshipCalculator::calculateScholarship(grade);
+        if (hasSocialScholarship) {
+            calculatedScholarship += ScholarshipCalculator::SOCIAL_SCHOLARSHIP;
+        }
+        if (calculatedScholarship > 0.0) {
+            previousSemesterScholarships[sem] = calculatedScholarship;
+        }
+    }
+}
+
 std::string Student::getHistoryString() const {
     if (previousSemesterGrades.empty()) {
         return "";
     }
 
-    std::ostringstream oss;
+    std::string result;
     bool first = true;
-    for (const auto& pair : previousSemesterGrades) {
-        if (!first) oss << ";";
-        oss << pair.first << ":" << std::fixed << std::setprecision(1) << pair.second;
+    for (const auto& [sem, grade] : previousSemesterGrades) {
+        if (!first) {
+            result += ";";
+        }
+        result += std::format("{}:{:.1f}", sem, grade);
         first = false;
     }
-    return oss.str();
+    return result;
 }
