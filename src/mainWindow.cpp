@@ -214,7 +214,6 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     connect(addStudentButton, &QPushButton::clicked, this, &MainWindow::addStudent);
     buttonsLayout->addWidget(addStudentButton);
 
-
     // Calculate scholarships button
     calculateButton = new QPushButton("Calculate Scholarships", this);
     calculateButton->setStyleSheet(buttonStyle);
