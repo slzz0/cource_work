@@ -160,7 +160,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     // Create table first
     createStudentTable();
-    tableButtonsLayout->addWidget(studentTable, 3);  // Table takes 3 parts of space
+    tableButtonsLayout->addWidget(studentTable, 19);  // Table takes 19 parts of space (3.8:1 ratio)
 
     // Right side - Buttons column in a styled container
     QGroupBox* buttonsGroup = new QGroupBox("Actions", this);
@@ -184,18 +184,18 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsGroup);
     buttonsLayout->setSpacing(10);
-    buttonsLayout->setContentsMargins(15, 20, 15, 15);
+    buttonsLayout->setContentsMargins(12, 18, 12, 12);
 
     // Common button style
     QString buttonStyle =
         "QPushButton {"
         "background-color: #0d7377;"
         "color: white;"
-        "padding: 10px 25px;"
+        "padding: 9px 20px;"
         "border-radius: 6px;"
         "font-weight: bold;"
         "font-size: 12px;"
-        "min-width: 160px;"
+        "min-width: 140px;"
         "}"
         "QPushButton:hover { "
         "background-color: #14a085; "
@@ -231,7 +231,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     }
 
     buttonsLayout->addStretch();
-    tableButtonsLayout->addWidget(buttonsGroup, 1);  // Buttons take 1 part of space
+    tableButtonsLayout->addWidget(buttonsGroup, 5);  // Buttons take 5 parts of space (19:5 = 3.8:1 ratio with table)
 
     mainLayout->addLayout(tableButtonsLayout, 1);
 

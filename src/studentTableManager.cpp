@@ -27,7 +27,7 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
     table->setHorizontalHeaderLabels(headers);
     table->verticalHeader()->setVisible(false);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table->setSelectionMode(QAbstractItemView::SingleSelection);
+    table->setSelectionMode(QAbstractItemView::NoSelection);
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setAlternatingRowColors(true);
     table->horizontalHeader()->setStretchLastSection(false);
