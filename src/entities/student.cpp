@@ -151,14 +151,8 @@ void Student::handleBudgetToPaidTransition() {
 void Student::handlePaidToBudgetTransition() {
     budgetSemester = semester;
     // Удаляем стипендии за семестры до budgetSemester, так как студент был платным
-    auto it = previousSemesterScholarships.begin();
-    while (it != previousSemesterScholarships.end()) {
-        if (it->first < budgetSemester) {
-            it = previousSemesterScholarships.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    std::erase_if(previousSemesterScholarships,
+                  [this](const auto& pair) { return pair.first < budgetSemester; });
 }
 
 void Student::saveScholarshipsForBudgetSemesters(int startSemester) {
@@ -169,7 +163,7 @@ void Student::saveScholarshipsForBudgetSemesters(int startSemester) {
         }
         
         // Если стипендия для этого семестра еще не сохранена, вычисляем и сохраняем
-        if (previousSemesterScholarships.find(sem) != previousSemesterScholarships.end()) {
+        if (previousSemesterScholarships.contains(sem)) {
             continue;
         }
         
