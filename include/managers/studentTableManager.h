@@ -38,6 +38,14 @@ private:
     void ensureScholarshipColumn(bool scholarshipsCalculated);
     void applyMissedHoursStyling();
     QWidget* createActionButtons(int row);
+    void setupColumnWidths(bool scholarshipsCalculated);
+    void createRowItems(int row, int& rowNum, const std::shared_ptr<Student>& student,
+                       const QFont& itemFont, const QColor& defaultTextColor,
+                       bool scholarshipsCalculated);
+    QTableWidgetItem* createNumberItem(int rowNum, const QFont& itemFont);
+    QTableWidgetItem* createMissedHoursItem(const std::shared_ptr<Student>& student,
+                                            const QFont& itemFont, const QColor& defaultTextColor);
+    QTableWidgetItem* createScholarshipItem(double scholarship, const QFont& itemFont);
 };
 
 #endif
