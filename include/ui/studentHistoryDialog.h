@@ -26,7 +26,7 @@ private:
     
     QTableWidget* setupCurrentInfoTable(QDialog* dialog, QVBoxLayout* layout) const;
     void populateCurrentInfoTable(QTableWidget* table, const std::shared_ptr<Student>& student) const;
-    QTableWidget* setupHistoryTable(QDialog* dialog, QVBoxLayout* layout) const;
+    QTableWidget* setupHistoryTable(QDialog* dialog) const;
     void populateHistoryTable(QTableWidget* table, const std::shared_ptr<Student>& student, int admissionYear) const;
     double calculateScholarshipForSemester(const std::shared_ptr<Student>& student, int sem, double grade) const;
     void createHistoryRow(QTableWidget* table, int row, int sem, double grade, double scholarship, int admissionYear) const;

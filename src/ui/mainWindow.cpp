@@ -414,10 +414,10 @@ void MainWindow::addStudent() {
         QMessageBox::information(this, "Success", "Student added successfully!");
     } catch (const ValidationException& e) {
         QMessageBox::critical(this, "Validation Error", e.what());
+    } catch (const DatabaseException& e) {
+        QMessageBox::critical(this, "Database Error", e.what());
     } catch (const ScholarshipException& e) {
         QMessageBox::critical(this, "Error", e.what());
-    } catch (const std::runtime_error& e) {
-        QMessageBox::critical(this, "Unexpected Error", e.what());
     }
 }
 
@@ -441,7 +441,7 @@ void MainWindow::searchStudent() {
     } catch (const StudentNotFoundException& e) {
         QMessageBox::information(this, "Not Found", e.what());
         showAllStudents();
-    } catch (const std::runtime_error& e) {
+    } catch (const DatabaseException& e) {
         QMessageBox::critical(this, "Search Error", e.what());
     }
 }

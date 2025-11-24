@@ -60,7 +60,7 @@ void StudentHistoryDialog::showHistory(const std::shared_ptr<Student>& student) 
         "rgba(0,0,0,0); border: 0px; padding: 0px;");
     layout->addWidget(prevGradesLabel);
 
-    auto historyTable = setupHistoryTable(&historyDialog, layout);
+    auto historyTable = setupHistoryTable(&historyDialog);
     int admissionYear = getAdmissionYearFromSemester(student->getSemester());
     populateHistoryTable(historyTable, student, admissionYear);
 
@@ -158,7 +158,7 @@ void StudentHistoryDialog::populateCurrentInfoTable(QTableWidget* table, const s
     table->horizontalHeader()->setStretchLastSection(true);
 }
 
-QTableWidget* StudentHistoryDialog::setupHistoryTable(QDialog* dialog, QVBoxLayout* layout) const {
+QTableWidget* StudentHistoryDialog::setupHistoryTable(QDialog* dialog) const {
     auto table = new QTableWidget(dialog);
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels(QStringList() << "Semester"
