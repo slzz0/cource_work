@@ -139,7 +139,7 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     // Номер строки
     int currentRowNum = rowNum;
     rowNum++;
-    QTableWidgetItem* numItem = createNumberItem(currentRowNum, itemFont);
+    auto numItem = createNumberItem(currentRowNum, itemFont);
     table->setItem(row, 0, numItem);
 
     // Имя и Фамилия - делаем шрифт немного жирнее для лучшей читаемости
@@ -159,13 +159,13 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     table->setItem(row, 2, surnameItem);
 
     // Остальные ячейки
-    QTableWidgetItem* courseItem = new QTableWidgetItem(QString::number(student->getCourse()));
+    auto courseItem = new QTableWidgetItem(QString::number(student->getCourse()));
     courseItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     courseItem->setForeground(QBrush(defaultTextColor));
     courseItem->setFont(itemFont);
     table->setItem(row, 3, courseItem);
 
-    QTableWidgetItem* semesterItem =
+    auto semesterItem =
         new QTableWidgetItem(QString::number(student->getSemester()));
     semesterItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     semesterItem->setForeground(QBrush(defaultTextColor));
@@ -173,22 +173,22 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     table->setItem(row, 4, semesterItem);
 
     QString funding = student->getIsBudget() ? "Budget" : "Paid";
-    QTableWidgetItem* fundingItem = new QTableWidgetItem(funding);
+    auto fundingItem = new QTableWidgetItem(funding);
     fundingItem->setForeground(QBrush(defaultTextColor));
     fundingItem->setFont(itemFont);
     table->setItem(row, 5, fundingItem);
 
     double avgGrade = student->getAverageGrade();
-    QTableWidgetItem* gradeItem = new QTableWidgetItem(QString::number(avgGrade, 'f', 2));
+    auto gradeItem = new QTableWidgetItem(QString::number(avgGrade, 'f', 2));
     gradeItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     gradeItem->setForeground(QBrush(defaultTextColor));
     gradeItem->setFont(itemFont);
     table->setItem(row, 6, gradeItem);
 
-    QTableWidgetItem* missedItem = createMissedHoursItem(student, itemFont, defaultTextColor);
+    auto missedItem = createMissedHoursItem(student, itemFont, defaultTextColor);
     table->setItem(row, 7, missedItem);
 
-    QTableWidgetItem* socialItem =
+    auto socialItem =
         new QTableWidgetItem(student->getHasSocialScholarship() ? "Yes" : "No");
     socialItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     socialItem->setData(Qt::UserRole, 0);
@@ -199,7 +199,7 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     // Scholarship column (position 9, between Social and Actions)
     if (scholarshipsCalculated && table->columnCount() > 9) {
         double scholarship = student->getScholarship();
-        QTableWidgetItem* scholarshipItem = createScholarshipItem(scholarship, itemFont);
+        auto scholarshipItem = createScholarshipItem(scholarship, itemFont);
         table->setItem(row, 9, scholarshipItem);
     }
 
@@ -210,7 +210,7 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     } else {
         actionsCol = 9;
     }
-    QWidget* actionsWidget = createActionButtons(row);
+    auto actionsWidget = createActionButtons(row);
     table->setCellWidget(row, actionsCol, actionsWidget);
 }
 
