@@ -20,7 +20,7 @@ void HistoryGradeGenerator::ensureHistoryForNewStudent(Student& student, int cur
     if (currentSemester <= 1) return;
     const auto& existingHistory = student.getPreviousSemesterGrades();
     for (int sem = 1; sem < currentSemester; ++sem) {
-        if (!existingHistory.contains(sem)) {
+        if (existingHistory.find(sem) == existingHistory.end()) {
             student.addPreviousGrade(sem, generateRandomGrade());
         }
     }
