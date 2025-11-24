@@ -83,8 +83,7 @@ double StudentStatisticsUpdater::getScholarshipFromHistory(const std::shared_ptr
         return scholarshipIt->second;
     }
     // Если стипендия не найдена в истории, проверяем, был ли студент бюджетником в этом семестре
-    int budgetSem = student->getBudgetSemester();
-    if (budgetSem > 0 && sem >= budgetSem) {
+    if (int budgetSem = student->getBudgetSemester(); budgetSem > 0 && sem >= budgetSem) {
         // Студент был бюджетником в этом семестре, вычисляем стипендию из оценки
         const auto& history = student->getPreviousSemesterGrades();
         if (auto it = history.find(sem); it != history.end()) {

@@ -529,11 +529,7 @@ void MainWindow::editSelectedStudent() {
         showAllStudents();
         updateStatistics();
 
-        try {
-            database.saveToFile();
-        } catch (const FileWriteException& e) {
-            QMessageBox::warning(this, "File Error", e.what());
-        }
+        saveDatabaseToFile();
 
         QMessageBox::information(this, "Success", "Student data updated.");
     } catch (const ValidationException& e) {
@@ -568,11 +564,7 @@ void MainWindow::deleteSelectedStudent() {
             showAllStudents();
             updateStatistics();
 
-            try {
-                database.saveToFile();
-            } catch (const FileWriteException& e) {
-                QMessageBox::warning(this, "File Error", e.what());
-            }
+            saveDatabaseToFile();
 
             QMessageBox::information(this, "Success", "Student deleted.");
         } catch (const DatabaseException& e) {
