@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <ranges>
 #include <set>
 
 #include "services/scholarshipCalculator.h"
@@ -62,34 +63,26 @@ std::vector<int> StudentStatisticsUpdater::getYearSemesters(int year) const {
 
 bool StudentStatisticsUpdater::wasStudentInYear(const std::set<int>& allSemesters,
                                                 const std::vector<int>& yearSemesters) const {
-    for (int sem : yearSemesters) {
-        if (allSemesters.contains(sem)) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(yearSemesters, [&allSemesters](int sem) {
+        return allSemesters.contains(sem);
+    });
 }
 
 bool StudentStatisticsUpdater::wasOnSummerSemester(const std::set<int>& allSemesters,
                                                    const std::vector<int>& yearSemesters) const {
-    for (int sem : yearSemesters) {
-        if (sem % 2 == 0 && allSemesters.contains(sem)) {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(yearSemesters, [&allSemesters](int sem) {
+        return sem % 2 == 0 && allSemesters.contains(sem);
+    });
 }
 
 double StudentStatisticsUpdater::getScholarshipFromHistory(const std::shared_ptr<Student>& student,
                                                            int sem) const {
     const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
-    auto scholarshipIt = scholarshipHistory.find(sem);
-    if (scholarshipIt != scholarshipHistory.end()) {
+    if (auto scholarshipIt = scholarshipHistory.find(sem); scholarshipIt != scholarshipHistory.end()) {
         return scholarshipIt->second;
     }
     const auto& history = student->getPreviousSemesterGrades();
-    auto it = history.find(sem);
-    if (it != history.end()) {
+    if (auto it = history.find(sem); it != history.end()) {
         return ScholarshipCalculator::calculateScholarship(it->second);
     }
     return 0.0;
@@ -135,15 +128,18 @@ double StudentStatisticsUpdater::calculateSummerScholarship(const std::shared_pt
     }
     
     for (int sem : yearSemesters) {
-        if (sem % 2 == 0 && sem >= budgetSem) {
-            if (sem == currentSem && getYearForSemester(currentSem) == year) {
-                if (student->getMissedHours() < 12) {
-                    return student->getScholarship();
-                }
-                return 0.0;
-            }
-            return getScholarshipFromHistory(student, sem);
+        if (sem % 2 != 0 || sem < budgetSem) {
+            continue;
         }
+        
+        if (sem == currentSem && getYearForSemester(currentSem) == year) {
+            if (student->getMissedHours() < 12) {
+                return student->getScholarship();
+            }
+            return 0.0;
+        }
+        
+        return getScholarshipFromHistory(student, sem);
     }
     return 0.0;
 }
@@ -178,7 +174,7 @@ void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
         winterTotalItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         if (stats.winterTotal > 0) {
             winterTotalItem->setForeground(QBrush(QColor(76, 175, 80)));
-            QFont boldFont = itemFont;
+            auto boldFont = itemFont;
             boldFont.setBold(true);
             winterTotalItem->setFont(boldFont);
         } else {
@@ -212,7 +208,7 @@ void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
         summerTotalItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         if (stats.summerTotal > 0) {
             summerTotalItem->setForeground(QBrush(QColor(76, 175, 80)));
-            QFont boldFont = itemFont;
+            auto boldFont = itemFont;
             boldFont.setBold(true);
             summerTotalItem->setFont(boldFont);
         } else {
