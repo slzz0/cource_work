@@ -137,20 +137,22 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
                                          const QFont& itemFont, const QColor& defaultTextColor,
                                          bool scholarshipsCalculated) {
     // Номер строки
-    QTableWidgetItem* numItem = createNumberItem(rowNum++, itemFont);
+    int currentRowNum = rowNum;
+    rowNum++;
+    QTableWidgetItem* numItem = createNumberItem(currentRowNum, itemFont);
     table->setItem(row, 0, numItem);
 
     // Имя и Фамилия - делаем шрифт немного жирнее для лучшей читаемости
     auto nameFont = itemFont;
     nameFont.setWeight(QFont::Medium);
 
-    QTableWidgetItem* nameItem =
+    auto nameItem =
         new QTableWidgetItem(QString::fromStdString(student->getName()));
     nameItem->setForeground(QBrush(defaultTextColor));
     nameItem->setFont(nameFont);
     table->setItem(row, 1, nameItem);
 
-    QTableWidgetItem* surnameItem =
+    auto surnameItem =
         new QTableWidgetItem(QString::fromStdString(student->getSurname()));
     surnameItem->setForeground(QBrush(defaultTextColor));
     surnameItem->setFont(nameFont);
