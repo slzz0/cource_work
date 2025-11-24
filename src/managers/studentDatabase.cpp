@@ -126,6 +126,113 @@ std::vector<std::shared_ptr<Student>> StudentDatabase::searchByCourse(int course
 
 void StudentDatabase::clear() { students.clear(); }
 
+namespace {
+    std::string parseFieldValue(const std::string& line) {
+        size_t colonPos = line.find(':');
+        if (colonPos == std::string::npos) {
+            return "";
+        }
+        std::string value = line.substr(colonPos + 1);
+        value.erase(0, value.find_first_not_of(" \t"));
+        value.erase(value.find_last_not_of(" \t\r\n") + 1);
+        return value;
+    }
+
+    void addPreviousGrades(std::shared_ptr<Student> student, const std::string& previous) {
+        if (previous.empty()) {
+            return;
+        }
+        std::istringstream iss(previous);
+        std::string token;
+        while (std::getline(iss, token, ';')) {
+            size_t colon = token.find(':');
+            if (colon != std::string::npos) {
+                int sem = std::stoi(token.substr(0, colon));
+                double grade = std::stod(token.substr(colon + 1));
+                student->addPreviousGrade(sem, grade);
+            }
+        }
+    }
+
+    std::shared_ptr<Student> createStudentFromData(
+        const std::string& name, const std::string& surname, int course, int semester,
+        double avgGrade, const std::string& funding, int missedHours, const std::string& social,
+        const std::string& previous) {
+        bool isBudget = (funding == "Budget");
+        auto student = std::make_shared<Student>(name, surname, course, semester, avgGrade, isBudget);
+        student->setMissedHours(missedHours);
+        student->setHasSocialScholarship(social == "Yes");
+        addPreviousGrades(student, previous);
+        return student;
+    }
+
+    struct StudentData {
+        std::string name;
+        std::string surname;
+        std::string funding;
+        std::string social;
+        std::string previous;
+        int course = 0;
+        int semester = 0;
+        int missedHours = 0;
+        double avgGrade = 0.0;
+
+        void reset() {
+            name.clear();
+            surname.clear();
+            funding.clear();
+            social.clear();
+            previous.clear();
+            course = 0;
+            semester = 0;
+            missedHours = 0;
+            avgGrade = 0.0;
+        }
+
+        bool isValid() const {
+            return !name.empty() && !surname.empty();
+        }
+    };
+
+    void parseStudentLine(const std::string& line, StudentData& data) {
+        if (line.find("Name:") == 0) {
+            data.name = parseFieldValue(line);
+        } else if (line.find("Surname:") == 0) {
+            data.surname = parseFieldValue(line);
+        } else if (line.find("Semester:") == 0) {
+            std::sscanf(line.c_str(), "Semester: %d", &data.semester);
+            data.course = (data.semester - 1) / 2 + 1;
+        } else if (line.find("Avg Grade:") == 0) {
+            std::sscanf(line.c_str(), "Avg Grade: %lf", &data.avgGrade);
+        } else if (line.find("Funding:") == 0) {
+            data.funding = parseFieldValue(line);
+        } else if (line.find("Missed Hours:") == 0) {
+            std::sscanf(line.c_str(), "Missed Hours: %d", &data.missedHours);
+        } else if (line.find("Social:") == 0) {
+            data.social = parseFieldValue(line);
+        } else if (line.find("Previous:") == 0) {
+            data.previous = parseFieldValue(line);
+        }
+    }
+
+    void processStudentBlock(const StudentData& data, std::vector<std::shared_ptr<Student>>& students,
+                            std::vector<std::string>& errors) {
+        if (!data.isValid()) {
+            return;
+        }
+        try {
+            auto student = createStudentFromData(data.name, data.surname, data.course,
+                                                data.semester, data.avgGrade, data.funding,
+                                                data.missedHours, data.social, data.previous);
+            students.push_back(student);
+        } catch (const ValidationException& e) {
+            errors.push_back(std::format("Student: {} {} - {}", data.surname, data.name, e.what()));
+        } catch (const std::exception& e) {
+            errors.push_back(std::format("Student: {} {} - {}", data.surname, data.name, e.what()));
+        }
+    }
+}
+
 bool StudentDatabase::saveToFile(std::string_view fname) const {
     std::string actualFilename = fname.empty() ? filename : std::string(fname);
     std::ofstream file(actualFilename);
@@ -146,26 +253,27 @@ bool StudentDatabase::saveToFile(std::string_view fname) const {
     std::stringstream dateStream;
     dateStream << std::put_time(&tm_buf, "%Y-%m-%d");
 
-    file << "# Scholarship Management System - Student Database\n";
-    file << "# Generated: " << dateStream.str() << "\n";
-    file << "# Total Students: " << students.size() << "\n\n";
+    file << std::format("# Scholarship Management System - Student Database\n");
+    file << std::format("# Generated: {}\n", dateStream.str());
+    file << std::format("# Total Students: {}\n\n", students.size());
 
     for (size_t i = 0; i < students.size(); ++i) {
         const auto& s = students[i];
-        file << "[" << (i + 1) << "]\n";
-        file << "Name:        " << s->getName() << "\n";
-        file << "Surname:     " << s->getSurname() << "\n";
-        file << "Semester:    " << s->getSemester() << "\n";
-        file << "Avg Grade:   " << std::fixed << std::setprecision(2) << s->getAverageGrade()
-             << "\n";
-        file << "Funding:     " << (s->getIsBudget() ? "Budget" : "Paid") << "\n";
-        file << "Missed Hours: " << s->getMissedHours() << "\n";
-        file << "Social:      " << (s->getHasSocialScholarship() ? "Yes" : "No") << "\n";
+        file << std::format("[{}]\n", i + 1);
+        file << std::format("Name:        {}\n", s->getName());
+        file << std::format("Surname:     {}\n", s->getSurname());
+        file << std::format("Semester:    {}\n", s->getSemester());
+        file << std::format("Avg Grade:   {:.2f}\n", s->getAverageGrade());
+        file << std::format("Funding:     {}\n", s->getIsBudget() ? "Budget" : "Paid");
+        file << std::format("Missed Hours: {}\n", s->getMissedHours());
+        file << std::format("Social:      {}\n", s->getHasSocialScholarship() ? "Yes" : "No");
         std::string history = s->getHistoryString();
-        file << "Previous:    " << (history.empty() ? "" : history) << "\n";
-        if (i < students.size() - 1) file << "\n---\n\n";
+        file << std::format("Previous:    {}\n", history);
+        if (i < students.size() - 1) {
+            file << std::format("\n---\n\n");
+        }
     }
-    file << "\n# End of file\n";
+    file << std::format("\n# End of file\n");
     file.close();
     return true;
 }
@@ -173,125 +281,36 @@ bool StudentDatabase::saveToFile(std::string_view fname) const {
 bool StudentDatabase::loadFromFile(std::string_view fname) {
     std::string actualFilename = fname.empty() ? filename : std::string(fname);
     std::ifstream file(actualFilename);
-    if (!file.is_open()) return false;
+    if (!file.is_open()) {
+        return false;
+    }
 
     students.clear();
 
     std::string line;
-    std::string name, surname, funding, social, previous;
-    int course = 0, semester = 0, missedHours = 0;
-    double avgGrade = 0.0, scholarship = 0.0;
+    StudentData currentData;
     bool inBlock = false;
-    std::vector<std::string> errors; 
+    std::vector<std::string> errors;
 
     while (std::getline(file, line)) {
         if (line.find('[') == 0 && line.find(']') != std::string::npos) {
-            if (inBlock && !name.empty() && !surname.empty()) {
-                try {
-                    bool isBudget = (funding == "Budget");
-                    auto student = std::make_shared<Student>(name, surname, course, semester,
-                                                             avgGrade, isBudget);
-                    student->setMissedHours(missedHours);
-                    student->setHasSocialScholarship(social == "Yes");
-
-                    if (!previous.empty()) {
-                        std::istringstream iss(previous);
-                        std::string token;
-                        while (std::getline(iss, token, ';')) {
-                            size_t colon = token.find(':');
-                            if (colon != std::string::npos) {
-                                int sem = std::stoi(token.substr(0, colon));
-                                double grade = std::stod(token.substr(colon + 1));
-                                student->addPreviousGrade(sem, grade);
-                            }
-                        }
-                    }
-
-                    students.push_back(student);
-                } catch (const ValidationException& e) {
-                    errors.push_back(std::string("Student: ") + surname + " " + name + " - " +
-                                     e.what());
-                } catch (const std::exception& e) {
-                    errors.push_back(std::string("Student: ") + surname + " " + name + " - " +
-                                     e.what());
-                }
+            if (inBlock) {
+                processStudentBlock(currentData, students, errors);
             }
-
-            name.clear();
-            surname.clear();
-            funding.clear();
-            social.clear();
-            previous.clear();
-            course = 0;
-            semester = 0;
-            missedHours = 0;
-            avgGrade = 0.0;
+            currentData.reset();
             inBlock = true;
             continue;
         }
 
-        if (!inBlock) continue;
+        if (!inBlock) {
+            continue;
+        }
 
-        if (line.find("Name:") == 0) {
-            name = line.substr(line.find(":") + 1);
-            name.erase(0, name.find_first_not_of(" \t"));
-            name.erase(name.find_last_not_of(" \t\r\n") + 1);
-        } else if (line.find("Surname:") == 0) {
-            surname = line.substr(line.find(":") + 1);
-            surname.erase(0, surname.find_first_not_of(" \t"));
-            surname.erase(surname.find_last_not_of(" \t\r\n") + 1);
-        } else if (line.find("Course:") == 0) {
-        } else if (line.find("Semester:") == 0) {
-            std::sscanf(line.c_str(), "Semester: %d", &semester);
-            course = (semester - 1) / 2 + 1;
-        } else if (line.find("Avg Grade:") == 0) {
-            std::sscanf(line.c_str(), "Avg Grade: %lf", &avgGrade);
-        } else if (line.find("Funding:") == 0) {
-            funding = line.substr(line.find(":") + 1);
-            funding.erase(0, funding.find_first_not_of(" \t"));
-            funding.erase(funding.find_last_not_of(" \t\r\n") + 1);
-        } else if (line.find("Missed Hours:") == 0) {
-            std::sscanf(line.c_str(), "Missed Hours: %d", &missedHours);
-        } else if (line.find("Social:") == 0) {
-            social = line.substr(line.find(":") + 1);
-            social.erase(0, social.find_first_not_of(" \t"));
-            social.erase(social.find_last_not_of(" \t\r\n") + 1);
-        } else if (line.find("Previous:") == 0) {
-            previous = line.substr(line.find(":") + 1);
-            previous.erase(0, previous.find_first_not_of(" \t"));
-            previous.erase(previous.find_last_not_of(" \t\r\n") + 1);
-        }
-        else if (line.find("---") == 0 || line.find("# End") == 0) {
-        }
+        parseStudentLine(line, currentData);
     }
 
-    if (inBlock && !name.empty() && !surname.empty()) {
-        try {
-            bool isBudget = (funding == "Budget");
-            auto student =
-                std::make_shared<Student>(name, surname, course, semester, avgGrade, isBudget);
-            student->setMissedHours(missedHours);
-            student->setHasSocialScholarship(social == "Yes");
-
-            if (!previous.empty()) {
-                std::istringstream iss(previous);
-                std::string token;
-                while (std::getline(iss, token, ';')) {
-                    size_t colon = token.find(':');
-                    if (colon != std::string::npos) {
-                        int sem = std::stoi(token.substr(0, colon));
-                        double grade = std::stod(token.substr(colon + 1));
-                        student->addPreviousGrade(sem, grade);
-                    }
-                }
-            }
-
-            students.push_back(student);
-        } catch (const ValidationException& e) {
-            errors.push_back(std::string("Student: ") + surname + " " + name + " - " + e.what());
-        } catch (const std::exception& e) {
-            errors.push_back(std::string("Student: ") + surname + " " + name + " - " + e.what());
-        }
+    if (inBlock) {
+        processStudentBlock(currentData, students, errors);
     }
 
     file.close();
@@ -300,7 +319,9 @@ bool StudentDatabase::loadFromFile(std::string_view fname) {
         std::string errorMsg = "Some students were skipped due to invalid data:\n";
         for (size_t i = 0; i < errors.size(); ++i) {
             errorMsg += errors[i];
-            if (i < errors.size() - 1) errorMsg += "\n";
+            if (i < errors.size() - 1) {
+                errorMsg += "\n";
+            }
         }
         throw ParseException(errorMsg);
     }
