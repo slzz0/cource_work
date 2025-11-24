@@ -27,7 +27,7 @@ void HistoryGradeGenerator::ensureHistoryForNewStudent(Student& student, int cur
 }
 
 void HistoryGradeGenerator::handleSemesterChange(Student& student, int oldSemester,
-                                                 double oldAverageGrade, int newSemester) {
+                                                 double oldAverageGrade, int newSemester) const {
     if (oldSemester != newSemester && oldSemester > 0) {
         student.addPreviousGrade(oldSemester, oldAverageGrade);
     }
@@ -35,7 +35,7 @@ void HistoryGradeGenerator::handleSemesterChange(Student& student, int oldSemest
 }
 
 void HistoryGradeGenerator::fillMissingHistoryForAll(
-    const std::vector<std::shared_ptr<Student>>& students) {
+    const std::vector<std::shared_ptr<Student>>& students) const {
     for (const auto& student : students) {
         if (!student) continue;
         ensureHistoryForNewStudent(*student, student->getSemester());

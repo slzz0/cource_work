@@ -13,8 +13,8 @@ public:
 
     void ensureHistoryForNewStudent(Student& student, int currentSemester) const;
     void handleSemesterChange(Student& student, int oldSemester, double oldAverageGrade,
-                              int newSemester);
-    void fillMissingHistoryForAll(const std::vector<std::shared_ptr<Student>>& students);
+                              int newSemester) const;
+    void fillMissingHistoryForAll(const std::vector<std::shared_ptr<Student>>& students) const;
 
 private:
     double generateRandomGrade() const;
