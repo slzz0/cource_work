@@ -3,6 +3,7 @@ project(Scholar LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(Qt6_DIR "C:/msys64/mingw64/lib/cmake/Qt6")
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
