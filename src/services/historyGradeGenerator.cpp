@@ -1,12 +1,18 @@
 #include "services/historyGradeGenerator.h"
 
 #include <cmath>
+#include <random>
 
 #include "entities/student.h"
 
 HistoryGradeGenerator::HistoryGradeGenerator() = default;
 
 double HistoryGradeGenerator::generateRandomGrade() {
+    // Используем thread_local static для безопасной генерации случайных чисел
+    // в однопоточном контексте UI приложения
+    thread_local static std::mt19937 generator{std::random_device{}()};
+    thread_local static std::uniform_real_distribution<double> distribution{5.0, 10.0};
+    
     double value = distribution(generator);
     return std::round(value * 100.0) / 100.0;
 }
