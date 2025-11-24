@@ -163,7 +163,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     tableButtonsLayout->addWidget(studentTable, 51);  // Table takes 51 parts of space (2.55:1 ratio)
 
     // Right side - Buttons column in a styled container
-    QGroupBox* buttonsGroup = new QGroupBox("Actions", this);
+    auto buttonsGroup = new QGroupBox("Actions", this);
     buttonsGroup->setStyleSheet(
         "QGroupBox {"
         "font-weight: bold;"
@@ -409,18 +409,14 @@ void MainWindow::addStudent() {
         showAllStudents();
         updateStatistics();
 
-        try {
-            database.saveToFile();
-        } catch (const FileWriteException& e) {
-            QMessageBox::warning(this, "File Error", e.what());
-        }
+        saveDatabaseToFile();
 
         QMessageBox::information(this, "Success", "Student added successfully!");
     } catch (const ValidationException& e) {
         QMessageBox::critical(this, "Validation Error", e.what());
     } catch (const ScholarshipException& e) {
         QMessageBox::critical(this, "Error", e.what());
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
         QMessageBox::critical(this, "Unexpected Error", e.what());
     }
 }
@@ -445,7 +441,7 @@ void MainWindow::searchStudent() {
     } catch (const StudentNotFoundException& e) {
         QMessageBox::information(this, "Not Found", e.what());
         showAllStudents();
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
         QMessageBox::critical(this, "Search Error", e.what());
     }
 }
@@ -454,7 +450,7 @@ void MainWindow::calculateAllScholarships() {
     auto allStudents = database.getAllStudents();
     int count = 0;
 
-    for (auto& student : allStudents) {
+    for (const auto& student : allStudents) {
         student->recalculateScholarship();
         count++;
     }
@@ -603,4 +599,12 @@ void MainWindow::showStudentHistory() {
 
 void MainWindow::fillMissingHistoryGrades() {
     historyGradeGenerator.fillMissingHistoryForAll(database.getAllStudents());
+}
+
+void MainWindow::saveDatabaseToFile() {
+    try {
+        database.saveToFile();
+    } catch (const FileWriteException& e) {
+        QMessageBox::warning(this, "File Error", e.what());
+    }
 }

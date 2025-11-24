@@ -47,6 +47,7 @@ class MainWindow : public QMainWindow {
     void createStudentTable();
     void updateStatistics();
     void fillMissingHistoryGrades();
+    void saveDatabaseToFile();
 
     StudentDatabase database;
 

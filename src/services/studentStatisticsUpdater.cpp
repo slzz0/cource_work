@@ -77,13 +77,19 @@ bool StudentStatisticsUpdater::wasOnSummerSemester(const std::set<int>& allSemes
 
 double StudentStatisticsUpdater::getScholarshipFromHistory(const std::shared_ptr<Student>& student,
                                                            int sem) const {
+    // Сначала проверяем сохраненную историю стипендий
     const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
     if (auto scholarshipIt = scholarshipHistory.find(sem); scholarshipIt != scholarshipHistory.end()) {
         return scholarshipIt->second;
     }
-    const auto& history = student->getPreviousSemesterGrades();
-    if (auto it = history.find(sem); it != history.end()) {
-        return ScholarshipCalculator::calculateScholarship(it->second);
+    // Если стипендия не найдена в истории, проверяем, был ли студент бюджетником в этом семестре
+    int budgetSem = student->getBudgetSemester();
+    if (budgetSem > 0 && sem >= budgetSem) {
+        // Студент был бюджетником в этом семестре, вычисляем стипендию из оценки
+        const auto& history = student->getPreviousSemesterGrades();
+        if (auto it = history.find(sem); it != history.end()) {
+            return ScholarshipCalculator::calculateScholarship(it->second);
+        }
     }
     return 0.0;
 }
@@ -91,22 +97,21 @@ double StudentStatisticsUpdater::getScholarshipFromHistory(const std::shared_ptr
 double StudentStatisticsUpdater::calculateWinterScholarship(const std::shared_ptr<Student>& student,
                                                            int year, const std::vector<int>& yearSemesters,
                                                            int currentSem) const {
-    if (!student->getIsBudget()) {
-        return 0.0;
-    }
-    
     int budgetSem = student->getBudgetSemester();
     if (budgetSem <= 0) {
         return 0.0;
     }
     
+    // Для текущего семестра проверяем, является ли студент сейчас бюджетником
     if (getYearForSemester(currentSem) == year) {
-        if (currentSem >= budgetSem && student->getMissedHours() < 12) {
+        if (student->getIsBudget() && currentSem >= budgetSem && student->getMissedHours() < 12) {
             return student->getScholarship();
         }
         return 0.0;
     }
     
+    // Для прошлых семестров учитываем стипендии, даже если студент сейчас платный
+    // но был бюджетником в прошлых семестрах
     for (int sem : yearSemesters) {
         if (sem >= budgetSem) {
             return getScholarshipFromHistory(student, sem);
@@ -118,10 +123,6 @@ double StudentStatisticsUpdater::calculateWinterScholarship(const std::shared_pt
 double StudentStatisticsUpdater::calculateSummerScholarship(const std::shared_ptr<Student>& student,
                                                            int year, const std::vector<int>& yearSemesters,
                                                            int currentSem) const {
-    if (!student->getIsBudget()) {
-        return 0.0;
-    }
-    
     int budgetSem = student->getBudgetSemester();
     if (budgetSem <= 0) {
         return 0.0;
@@ -132,13 +133,16 @@ double StudentStatisticsUpdater::calculateSummerScholarship(const std::shared_pt
             continue;
         }
         
+        // Для текущего семестра проверяем, является ли студент сейчас бюджетником
         if (sem == currentSem && getYearForSemester(currentSem) == year) {
-            if (student->getMissedHours() < 12) {
+            if (student->getIsBudget() && student->getMissedHours() < 12) {
                 return student->getScholarship();
             }
             return 0.0;
         }
         
+        // Для прошлых семестров учитываем стипендии, даже если студент сейчас платный
+        // но был бюджетником в прошлых семестрах
         return getScholarshipFromHistory(student, sem);
     }
     return 0.0;

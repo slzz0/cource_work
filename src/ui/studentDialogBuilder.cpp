@@ -108,35 +108,35 @@ StudentDialogResult StudentDialogBuilder::showAddDialog() {
     dialog.setMinimumWidth(400);
     dialog.setStyleSheet(buildDialogStyle());
 
-    QFormLayout* form = new QFormLayout(&dialog);
+    auto form = new QFormLayout(&dialog);
     form->setSpacing(15);
     form->setContentsMargins(20, 20, 20, 20);
 
-    QLineEdit* nameField = new QLineEdit(&dialog);
+    auto nameField = new QLineEdit(&dialog);
     nameField->setPlaceholderText("Enter name");
-    QLineEdit* surnameField = new QLineEdit(&dialog);
+    auto surnameField = new QLineEdit(&dialog);
     surnameField->setPlaceholderText("Enter surname");
 
-    QSpinBox* semesterField = new QSpinBox(&dialog);
+    auto semesterField = new QSpinBox(&dialog);
     configureSemesterSpinBox(semesterField);
     semesterField->setValue(1);
 
-    QDoubleSpinBox* avgField = new QDoubleSpinBox(&dialog);
+    auto avgField = new QDoubleSpinBox(&dialog);
     avgField->setRange(0.0, 10.0);
     avgField->setDecimals(2);
     avgField->setSingleStep(0.1);
     avgField->setValue(5.0);
 
-    QComboBox* fundingField = new QComboBox(&dialog);
+    auto fundingField = new QComboBox(&dialog);
     fundingField->addItem("Budget");
     fundingField->addItem("Paid");
 
-    QSpinBox* missedHoursField = new QSpinBox(&dialog);
+    auto missedHoursField = new QSpinBox(&dialog);
     missedHoursField->setRange(0, 100);
     missedHoursField->setValue(0);
     missedHoursField->setToolTip("If >= 12 hours, student will lose scholarship");
 
-    QCheckBox* socialField = new QCheckBox(&dialog);
+    auto socialField = new QCheckBox(&dialog);
     socialField->setText("Social Scholarship");
     socialField->setStyleSheet("color: #e0e0e0;");
 
@@ -148,7 +148,7 @@ StudentDialogResult StudentDialogBuilder::showAddDialog() {
     form->addRow("Missed Hours:", missedHoursField);
     form->addRow("", socialField);
 
-    QDialogButtonBox* bb =
+    auto bb =
         new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     bb->button(QDialogButtonBox::Ok)->setText("Add");
     bb->button(QDialogButtonBox::Cancel)->setText("Cancel");
@@ -195,37 +195,37 @@ StudentDialogResult StudentDialogBuilder::showEditDialog(const std::shared_ptr<S
     dialog.setMinimumWidth(400);
     dialog.setStyleSheet(buildDialogStyle());
 
-    QFormLayout* form = new QFormLayout(&dialog);
+    auto form = new QFormLayout(&dialog);
     form->setSpacing(15);
     form->setContentsMargins(20, 20, 20, 20);
 
-    QLineEdit* nameField =
+    auto nameField =
         new QLineEdit(QString::fromStdString(student->getName()), &dialog);
-    QLineEdit* surnameField =
+    auto surnameField =
         new QLineEdit(QString::fromStdString(student->getSurname()), &dialog);
 
-    QSpinBox* semesterField = new QSpinBox(&dialog);
+    auto semesterField = new QSpinBox(&dialog);
     configureSemesterSpinBox(semesterField);
     int initialSemester = student->getSemester();
     if (initialSemester == 2) initialSemester = 3;
     semesterField->setValue(initialSemester);
 
-    QDoubleSpinBox* avgField = new QDoubleSpinBox(&dialog);
+    auto avgField = new QDoubleSpinBox(&dialog);
     avgField->setRange(0.0, 10.0);
     avgField->setDecimals(2);
     avgField->setSingleStep(0.1);
     avgField->setValue(student->getAverageGrade());
 
-    QComboBox* fundingField = new QComboBox(&dialog);
+    auto fundingField = new QComboBox(&dialog);
     fundingField->addItem("Budget");
     fundingField->addItem("Paid");
     fundingField->setCurrentIndex(student->getIsBudget() ? 0 : 1);
 
-    QSpinBox* missedHoursField = new QSpinBox(&dialog);
+    auto missedHoursField = new QSpinBox(&dialog);
     missedHoursField->setRange(0, 100);
     missedHoursField->setValue(student->getMissedHours());
 
-    QCheckBox* socialField = new QCheckBox(&dialog);
+    auto socialField = new QCheckBox(&dialog);
     socialField->setText("Social Scholarship");
     socialField->setChecked(student->getHasSocialScholarship());
     socialField->setStyleSheet("color: #e0e0e0;");
@@ -238,7 +238,7 @@ StudentDialogResult StudentDialogBuilder::showEditDialog(const std::shared_ptr<S
     form->addRow("Missed Hours:", missedHoursField);
     form->addRow("", socialField);
 
-    QDialogButtonBox* bb =
+    auto bb =
         new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     bb->button(QDialogButtonBox::Ok)->setText("Save");
     bb->button(QDialogButtonBox::Cancel)->setText("Cancel");
