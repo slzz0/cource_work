@@ -72,7 +72,7 @@ class MainWindow : public QMainWindow {
 
     std::unique_ptr<StudentTableManager> tableManager;
     [[no_unique_address]] StudentStatisticsUpdater statisticsUpdater;
-    HistoryGradeGenerator historyGradeGenerator;
+    [[no_unique_address]] HistoryGradeGenerator historyGradeGenerator;
     std::unique_ptr<StudentHistoryDialog> historyDialog;
 };
 
