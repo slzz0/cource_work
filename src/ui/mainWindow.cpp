@@ -589,7 +589,7 @@ void MainWindow::showStudentHistory() {
     historyDialog->showHistory(student);
 }
 
-void MainWindow::fillMissingHistoryGrades() {
+void MainWindow::fillMissingHistoryGrades() const {
     historyGradeGenerator.fillMissingHistoryForAll(database.getAllStudents());
 }
 

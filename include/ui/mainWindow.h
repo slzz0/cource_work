@@ -46,7 +46,7 @@ class MainWindow : public QMainWindow {
     void createStatisticsTab(QWidget* tabWidget);
     void createStudentTable();
     void updateStatistics();
-    void fillMissingHistoryGrades();
+    void fillMissingHistoryGrades() const;
     void saveDatabaseToFile();
 
     StudentDatabase database;
