@@ -13,12 +13,12 @@
 #include <memory>
 
 #include "entities/student.h"
+#include "managers/studentDatabase.h"
+#include "managers/studentTableManager.h"
 #include "services/historyGradeGenerator.h"
 #include "services/scholarshipCalculator.h"
-#include "managers/studentDatabase.h"
-#include "ui/studentHistoryDialog.h"
 #include "services/studentStatisticsUpdater.h"
-#include "managers/studentTableManager.h"
+#include "ui/studentHistoryDialog.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
