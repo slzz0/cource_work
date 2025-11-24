@@ -65,8 +65,6 @@
 
     private:
         void saveScholarshipsForBudgetSemesters(int startSemester);
-        void handleBudgetToPaidTransition();
-        void handlePaidToBudgetTransition();
         void saveHistoricalScholarships();
         bool isEligibleForScholarship() const;
         void calculateCurrentScholarship();

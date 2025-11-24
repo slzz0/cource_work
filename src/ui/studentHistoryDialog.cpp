@@ -237,8 +237,7 @@ void StudentHistoryDialog::populateHistoryTable(QTableWidget* table, const std::
 }
 
 double StudentHistoryDialog::calculateScholarshipForSemester(const std::shared_ptr<Student>& student, int sem, double grade) const {
-    int budgetSem = student->getBudgetSemester();
-    if (budgetSem <= 0 || sem < budgetSem) {
+    if (int budgetSem = student->getBudgetSemester(); budgetSem <= 0 || sem < budgetSem) {
         return 0.0;
     }
 
