@@ -4,8 +4,7 @@
 
 #include "entities/student.h"
 
-HistoryGradeGenerator::HistoryGradeGenerator()
-    : generator(std::random_device{}()), distribution(5.0, 10.0) {}
+HistoryGradeGenerator::HistoryGradeGenerator() = default;
 
 double HistoryGradeGenerator::generateRandomGrade() {
     double value = distribution(generator);
@@ -16,7 +15,7 @@ void HistoryGradeGenerator::ensureHistoryForNewStudent(Student& student, int cur
     if (currentSemester <= 1) return;
     const auto& existingHistory = student.getPreviousSemesterGrades();
     for (int sem = 1; sem < currentSemester; ++sem) {
-        if (existingHistory.find(sem) == existingHistory.end()) {
+        if (!existingHistory.contains(sem)) {
             student.addPreviousGrade(sem, generateRandomGrade());
         }
     }

@@ -40,143 +40,121 @@ void StudentStatisticsUpdater::updateGeneralStatistics(
         QString("Total Scholarships: %1 BYN").arg(totalScholarship, 0, 'f', 2));
 }
 
-void StudentStatisticsUpdater::updateSemesterTable(
-    const std::vector<std::shared_ptr<Student>>& students, QTableWidget* table) const {
-    if (!table) return;
-
-    table->setRowCount(0);
-
-    struct YearStats {
-        int winterCount = 0;
-        int summerCount = 0;
-        double winterTotal = 0.0;
-        double summerTotal = 0.0;
-    };
-
-    std::map<int, YearStats> yearStats;
-    for (int year = 2022; year <= 2025; ++year) {
-        yearStats[year] = YearStats{};
+std::set<int> StudentStatisticsUpdater::collectAllSemesters(const std::shared_ptr<Student>& student) const {
+    std::set<int> allSemesters;
+    allSemesters.insert(student->getSemester());
+    const auto& history = student->getPreviousSemesterGrades();
+    for (const auto& [sem, grade] : history) {
+        allSemesters.insert(sem);
     }
+    return allSemesters;
+}
 
-    for (const auto& student : students) {
-        if (!student) continue;
-        bool isBudget = student->getIsBudget();
-        int currentSem = student->getSemester();
-        const auto& history = student->getPreviousSemesterGrades();
-
-        std::set<int> allSemesters;
-        allSemesters.insert(currentSem);
-        for (const auto& entry : history) {
-            allSemesters.insert(entry.first);
-        }
-
-        for (int year = 2022; year <= 2025; ++year) {
-            std::vector<int> yearSemesters;
-            for (int sem = 1; sem <= 8; ++sem) {
-                if (getYearForSemester(sem) == year) {
-                    yearSemesters.push_back(sem);
-                }
-            }
-
-            bool wasInYear = false;
-            for (int sem : yearSemesters) {
-                if (allSemesters.find(sem) != allSemesters.end()) {
-                    wasInYear = true;
-                    break;
-                }
-            }
-
-            if (!wasInYear) continue;
-
-            auto& stats = yearStats[year];
-            stats.winterCount += 1;
-
-            double winterScholarship = 0.0;
-            if (isBudget) {
-                int budgetSem = student->getBudgetSemester();
-                if (budgetSem > 0) {  // Студент был бюджетником хотя бы в одном семестре
-                    if (getYearForSemester(currentSem) == year) {
-                        // Проверяем, что текущий семестр >= budgetSemester
-                        if (currentSem >= budgetSem && student->getMissedHours() < 12) {
-                            winterScholarship = student->getScholarship();
-                        }
-                    } else {
-                        for (int sem : yearSemesters) {
-                            // Проверяем, что семестр >= budgetSemester (когда студент стал бюджетником)
-                            if (sem >= budgetSem) {
-                                auto it = history.find(sem);
-                                if (it != history.end()) {
-                                    // Используем сохраненную стипендию из истории, если есть
-                                    const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
-                                    auto scholarshipIt = scholarshipHistory.find(sem);
-                                    if (scholarshipIt != scholarshipHistory.end()) {
-                                        winterScholarship = scholarshipIt->second;
-                                    } else {
-                                        winterScholarship = ScholarshipCalculator::calculateScholarship(it->second);
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            stats.winterTotal += winterScholarship;
-
-            bool wasOnSummerSemester = false;
-            for (int sem : yearSemesters) {
-                if (sem % 2 == 0 && allSemesters.find(sem) != allSemesters.end()) {
-                    wasOnSummerSemester = true;
-                    break;
-                }
-            }
-
-            if (wasOnSummerSemester) {
-                stats.summerCount += 1;
-
-                double summerScholarship = 0.0;
-                if (isBudget) {
-                    int budgetSem = student->getBudgetSemester();
-                    if (budgetSem > 0) {  // Студент был бюджетником хотя бы в одном семестре
-                        for (int sem : yearSemesters) {
-                            if (sem % 2 == 0 && sem >= budgetSem) {  // Проверяем, что семестр >= budgetSemester
-                                if (sem == currentSem && getYearForSemester(currentSem) == year) {
-                                    if (student->getMissedHours() < 12) {
-                                        summerScholarship = student->getScholarship();
-                                    }
-                                    break;
-                                } else {
-                                    auto it = history.find(sem);
-                                    if (it != history.end()) {
-                                        // Используем сохраненную стипендию из истории, если есть
-                                        const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
-                                        auto scholarshipIt = scholarshipHistory.find(sem);
-                                        if (scholarshipIt != scholarshipHistory.end()) {
-                                            summerScholarship = scholarshipIt->second;
-                                        } else {
-                                            summerScholarship =
-                                                ScholarshipCalculator::calculateScholarship(it->second);
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                stats.summerTotal += summerScholarship;
-            }
+std::vector<int> StudentStatisticsUpdater::getYearSemesters(int year) const {
+    std::vector<int> yearSemesters;
+    for (int sem = 1; sem <= 8; ++sem) {
+        if (getYearForSemester(sem) == year) {
+            yearSemesters.push_back(sem);
         }
     }
+    return yearSemesters;
+}
 
+bool StudentStatisticsUpdater::wasStudentInYear(const std::set<int>& allSemesters,
+                                                const std::vector<int>& yearSemesters) const {
+    for (int sem : yearSemesters) {
+        if (allSemesters.contains(sem)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool StudentStatisticsUpdater::wasOnSummerSemester(const std::set<int>& allSemesters,
+                                                   const std::vector<int>& yearSemesters) const {
+    for (int sem : yearSemesters) {
+        if (sem % 2 == 0 && allSemesters.contains(sem)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+double StudentStatisticsUpdater::getScholarshipFromHistory(const std::shared_ptr<Student>& student,
+                                                           int sem) const {
+    const auto& scholarshipHistory = student->getPreviousSemesterScholarships();
+    auto scholarshipIt = scholarshipHistory.find(sem);
+    if (scholarshipIt != scholarshipHistory.end()) {
+        return scholarshipIt->second;
+    }
+    const auto& history = student->getPreviousSemesterGrades();
+    auto it = history.find(sem);
+    if (it != history.end()) {
+        return ScholarshipCalculator::calculateScholarship(it->second);
+    }
+    return 0.0;
+}
+
+double StudentStatisticsUpdater::calculateWinterScholarship(const std::shared_ptr<Student>& student,
+                                                           int year, const std::vector<int>& yearSemesters,
+                                                           int currentSem) const {
+    if (!student->getIsBudget()) {
+        return 0.0;
+    }
+    
+    int budgetSem = student->getBudgetSemester();
+    if (budgetSem <= 0) {
+        return 0.0;
+    }
+    
+    if (getYearForSemester(currentSem) == year) {
+        if (currentSem >= budgetSem && student->getMissedHours() < 12) {
+            return student->getScholarship();
+        }
+        return 0.0;
+    }
+    
+    for (int sem : yearSemesters) {
+        if (sem >= budgetSem) {
+            return getScholarshipFromHistory(student, sem);
+        }
+    }
+    return 0.0;
+}
+
+double StudentStatisticsUpdater::calculateSummerScholarship(const std::shared_ptr<Student>& student,
+                                                           int year, const std::vector<int>& yearSemesters,
+                                                           int currentSem) const {
+    if (!student->getIsBudget()) {
+        return 0.0;
+    }
+    
+    int budgetSem = student->getBudgetSemester();
+    if (budgetSem <= 0) {
+        return 0.0;
+    }
+    
+    for (int sem : yearSemesters) {
+        if (sem % 2 == 0 && sem >= budgetSem) {
+            if (sem == currentSem && getYearForSemester(currentSem) == year) {
+                if (student->getMissedHours() < 12) {
+                    return student->getScholarship();
+                }
+                return 0.0;
+            }
+            return getScholarshipFromHistory(student, sem);
+        }
+    }
+    return 0.0;
+}
+
+void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
+                                                 const std::map<int, YearStats>& yearStats) const {
     QColor defaultTextColor(234, 234, 234);
     QFont itemFont;
     itemFont.setPointSize(11);
 
-    for (const auto& entry : yearStats) {
-        int year = entry.first;
-        const YearStats& stats = entry.second;
-
+    for (const auto& [year, stats] : yearStats) {
         int winterRow = table->rowCount();
         table->insertRow(winterRow);
 
@@ -246,6 +224,44 @@ void StudentStatisticsUpdater::updateSemesterTable(
     }
 
     table->resizeColumnsToContents();
+}
+
+void StudentStatisticsUpdater::updateSemesterTable(
+    const std::vector<std::shared_ptr<Student>>& students, QTableWidget* table) const {
+    if (!table) return;
+
+    table->setRowCount(0);
+
+    std::map<int, YearStats> yearStats;
+    for (int year = 2022; year <= 2025; ++year) {
+        yearStats[year] = YearStats{};
+    }
+
+    for (const auto& student : students) {
+        if (!student) continue;
+        
+        std::set<int> allSemesters = collectAllSemesters(student);
+        int currentSem = student->getSemester();
+
+        for (int year = 2022; year <= 2025; ++year) {
+            std::vector<int> yearSemesters = getYearSemesters(year);
+            
+            if (!wasStudentInYear(allSemesters, yearSemesters)) {
+                continue;
+            }
+
+            auto& stats = yearStats[year];
+            stats.winterCount += 1;
+            stats.winterTotal += calculateWinterScholarship(student, year, yearSemesters, currentSem);
+
+            if (wasOnSummerSemester(allSemesters, yearSemesters)) {
+                stats.summerCount += 1;
+                stats.summerTotal += calculateSummerScholarship(student, year, yearSemesters, currentSem);
+            }
+        }
+    }
+
+    populateTableRows(table, yearStats);
 }
 
 int StudentStatisticsUpdater::getYearForSemester(int semester) const {
