@@ -27,6 +27,10 @@ QString dangerButtonStyle() {
         "border-radius: 4px; font-weight: bold; }"
         "QPushButton:hover { background-color: #da190b; }");
 }
+
+int normalizeSemester(int semester) {
+    return (semester == 2) ? 3 : semester;
+}
 }
 
 StudentDialogResult::StudentDialogResult() = default;
@@ -94,184 +98,154 @@ void StudentDialogBuilder::configureSemesterSpinBox(QSpinBox* spinBox) const {
     if (!spinBox) return;
     spinBox->setRange(1, 8);
     QObject::connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged), [spinBox](int value) {
-        if (value == 2) {
-            spinBox->setValue(3);
+        int normalized = normalizeSemester(value);
+        if (normalized != value) {
+            spinBox->setValue(normalized);
         }
     });
 }
 
-StudentDialogResult StudentDialogBuilder::showAddDialog() {
-    StudentDialogResult result;
+void StudentDialogBuilder::setupDialog(QDialog* dialog, const QString& title) const {
+    dialog->setWindowTitle(title);
+    dialog->setMinimumWidth(400);
+    dialog->setStyleSheet(buildDialogStyle());
+}
 
-    QDialog dialog(parentWidget);
-    dialog.setWindowTitle("Add Student");
-    dialog.setMinimumWidth(400);
-    dialog.setStyleSheet(buildDialogStyle());
-
-    auto form = new QFormLayout(&dialog);
+QFormLayout* StudentDialogBuilder::createFormLayout(QDialog* dialog) const {
+    auto form = new QFormLayout(dialog);
     form->setSpacing(15);
     form->setContentsMargins(20, 20, 20, 20);
+    return form;
+}
 
-    auto nameField = new QLineEdit(&dialog);
-    nameField->setPlaceholderText("Enter name");
-    auto surnameField = new QLineEdit(&dialog);
-    surnameField->setPlaceholderText("Enter surname");
+DialogFields StudentDialogBuilder::createFields(QDialog* dialog, const std::shared_ptr<Student>& student) const {
+    DialogFields fields;
+    
+    if (student) {
+        fields.nameField = new QLineEdit(QString::fromStdString(student->getName()), dialog);
+        fields.surnameField = new QLineEdit(QString::fromStdString(student->getSurname()), dialog);
+    } else {
+        fields.nameField = new QLineEdit(dialog);
+        fields.nameField->setPlaceholderText("Enter name");
+        fields.surnameField = new QLineEdit(dialog);
+        fields.surnameField->setPlaceholderText("Enter surname");
+    }
+    
+    fields.semesterField = new QSpinBox(dialog);
+    configureSemesterSpinBox(fields.semesterField);
+    if (student) {
+        fields.semesterField->setValue(normalizeSemester(student->getSemester()));
+    } else {
+        fields.semesterField->setValue(1);
+    }
+    
+    fields.avgField = new QDoubleSpinBox(dialog);
+    fields.avgField->setRange(0.0, 10.0);
+    fields.avgField->setDecimals(2);
+    fields.avgField->setSingleStep(0.1);
+    fields.avgField->setValue(student ? student->getAverageGrade() : 5.0);
+    
+    fields.fundingField = new QComboBox(dialog);
+    fields.fundingField->addItem("Budget");
+    fields.fundingField->addItem("Paid");
+    if (student) {
+        fields.fundingField->setCurrentIndex(student->getIsBudget() ? 0 : 1);
+    }
+    
+    fields.missedHoursField = new QSpinBox(dialog);
+    fields.missedHoursField->setRange(0, 100);
+    fields.missedHoursField->setValue(student ? student->getMissedHours() : 0);
+    if (!student) {
+        fields.missedHoursField->setToolTip("If >= 12 hours, student will lose scholarship");
+    }
+    
+    fields.socialField = new QCheckBox(dialog);
+    fields.socialField->setText("Social Scholarship");
+    fields.socialField->setStyleSheet("color: #e0e0e0;");
+    if (student) {
+        fields.socialField->setChecked(student->getHasSocialScholarship());
+    }
+    
+    return fields;
+}
 
-    auto semesterField = new QSpinBox(&dialog);
-    configureSemesterSpinBox(semesterField);
-    semesterField->setValue(1);
+void StudentDialogBuilder::addFieldsToForm(QFormLayout* form, const DialogFields& fields) const {
+    form->addRow("Name:", fields.nameField);
+    form->addRow("Surname:", fields.surnameField);
+    form->addRow("Semester:", fields.semesterField);
+    form->addRow("Average Grade:", fields.avgField);
+    form->addRow("Funding Type:", fields.fundingField);
+    form->addRow("Missed Hours:", fields.missedHoursField);
+    form->addRow("", fields.socialField);
+}
 
-    auto avgField = new QDoubleSpinBox(&dialog);
-    avgField->setRange(0.0, 10.0);
-    avgField->setDecimals(2);
-    avgField->setSingleStep(0.1);
-    avgField->setValue(5.0);
-
-    auto fundingField = new QComboBox(&dialog);
-    fundingField->addItem("Budget");
-    fundingField->addItem("Paid");
-
-    auto missedHoursField = new QSpinBox(&dialog);
-    missedHoursField->setRange(0, 100);
-    missedHoursField->setValue(0);
-    missedHoursField->setToolTip("If >= 12 hours, student will lose scholarship");
-
-    auto socialField = new QCheckBox(&dialog);
-    socialField->setText("Social Scholarship");
-    socialField->setStyleSheet("color: #e0e0e0;");
-
-    form->addRow("Name:", nameField);
-    form->addRow("Surname:", surnameField);
-    form->addRow("Semester:", semesterField);
-    form->addRow("Average Grade:", avgField);
-    form->addRow("Funding Type:", fundingField);
-    form->addRow("Missed Hours:", missedHoursField);
-    form->addRow("", socialField);
-
-    auto bb =
-        new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    bb->button(QDialogButtonBox::Ok)->setText("Add");
+QDialogButtonBox* StudentDialogBuilder::createButtonBox(QDialog* dialog, const QString& okText) const {
+    auto bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+    bb->button(QDialogButtonBox::Ok)->setText(okText);
     bb->button(QDialogButtonBox::Cancel)->setText("Cancel");
     bb->button(QDialogButtonBox::Ok)->setStyleSheet(primaryButtonStyle());
     bb->button(QDialogButtonBox::Cancel)->setStyleSheet(dangerButtonStyle());
-    form->addRow(bb);
+    return bb;
+}
 
-    QObject::connect(bb, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    QObject::connect(bb, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+void StudentDialogBuilder::connectButtonBox(QDialogButtonBox* bb, QDialog* dialog) const {
+    QObject::connect(bb, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    QObject::connect(bb, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+}
 
-    if (dialog.exec() != QDialog::Accepted) {
-        return result;
-    }
-
-    const QString name = nameField->text().trimmed();
-    const QString surname = surnameField->text().trimmed();
-
+bool StudentDialogBuilder::validateAndFillResult(const DialogFields& fields, StudentDialogResult& result, const QString& errorMessage) const {
+    const QString name = fields.nameField->text().trimmed();
+    const QString surname = fields.surnameField->text().trimmed();
+    
     if (name.isEmpty() || surname.isEmpty()) {
-        QMessageBox::warning(parentWidget, "Error", "Please enter both name and surname.");
-        return result;
+        QMessageBox::warning(parentWidget, "Error", errorMessage);
+        return false;
     }
-
-    int semester = semesterField->value();
-    if (semester == 2) semester = 3;
-
+    
     result.setAccepted(true);
     result.setName(name);
     result.setSurname(surname);
-    result.setSemester(semester);
-    result.setAverageGrade(avgField->value());
-    result.setIsBudget(fundingField->currentText() == "Budget");
-    result.setMissedHours(missedHoursField->value());
-    result.setHasSocialScholarship(socialField->isChecked());
+    result.setSemester(normalizeSemester(fields.semesterField->value()));
+    result.setAverageGrade(fields.avgField->value());
+    result.setIsBudget(fields.fundingField->currentText() == "Budget");
+    result.setMissedHours(fields.missedHoursField->value());
+    result.setHasSocialScholarship(fields.socialField->isChecked());
+    
+    return true;
+}
 
+StudentDialogResult StudentDialogBuilder::showDialog(const QString& title, const QString& okButtonText,
+                                                     const QString& errorMessage,
+                                                     const std::shared_ptr<Student>& student) const {
+    StudentDialogResult result;
+    
+    QDialog dialog(parentWidget);
+    setupDialog(&dialog, title);
+    
+    auto form = createFormLayout(&dialog);
+    auto fields = createFields(&dialog, student);
+    addFieldsToForm(form, fields);
+    
+    auto bb = createButtonBox(&dialog, okButtonText);
+    form->addRow(bb);
+    connectButtonBox(bb, &dialog);
+    
+    if (dialog.exec() != QDialog::Accepted) {
+        return result;
+    }
+    
+    validateAndFillResult(fields, result, errorMessage);
+    
     return result;
 }
 
+StudentDialogResult StudentDialogBuilder::showAddDialog() {
+    return showDialog("Add Student", "Add", "Please enter both name and surname.", nullptr);
+}
+
 StudentDialogResult StudentDialogBuilder::showEditDialog(const std::shared_ptr<Student>& student) {
-    StudentDialogResult result;
-    if (!student) return result;
-
-    QDialog dialog(parentWidget);
-    dialog.setWindowTitle("Edit Student");
-    dialog.setMinimumWidth(400);
-    dialog.setStyleSheet(buildDialogStyle());
-
-    auto form = new QFormLayout(&dialog);
-    form->setSpacing(15);
-    form->setContentsMargins(20, 20, 20, 20);
-
-    auto nameField =
-        new QLineEdit(QString::fromStdString(student->getName()), &dialog);
-    auto surnameField =
-        new QLineEdit(QString::fromStdString(student->getSurname()), &dialog);
-
-    auto semesterField = new QSpinBox(&dialog);
-    configureSemesterSpinBox(semesterField);
-    int initialSemester = student->getSemester();
-    if (initialSemester == 2) initialSemester = 3;
-    semesterField->setValue(initialSemester);
-
-    auto avgField = new QDoubleSpinBox(&dialog);
-    avgField->setRange(0.0, 10.0);
-    avgField->setDecimals(2);
-    avgField->setSingleStep(0.1);
-    avgField->setValue(student->getAverageGrade());
-
-    auto fundingField = new QComboBox(&dialog);
-    fundingField->addItem("Budget");
-    fundingField->addItem("Paid");
-    fundingField->setCurrentIndex(student->getIsBudget() ? 0 : 1);
-
-    auto missedHoursField = new QSpinBox(&dialog);
-    missedHoursField->setRange(0, 100);
-    missedHoursField->setValue(student->getMissedHours());
-
-    auto socialField = new QCheckBox(&dialog);
-    socialField->setText("Social Scholarship");
-    socialField->setChecked(student->getHasSocialScholarship());
-    socialField->setStyleSheet("color: #e0e0e0;");
-
-    form->addRow("Name:", nameField);
-    form->addRow("Surname:", surnameField);
-    form->addRow("Semester:", semesterField);
-    form->addRow("Average Grade:", avgField);
-    form->addRow("Funding Type:", fundingField);
-    form->addRow("Missed Hours:", missedHoursField);
-    form->addRow("", socialField);
-
-    auto bb =
-        new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    bb->button(QDialogButtonBox::Ok)->setText("Save");
-    bb->button(QDialogButtonBox::Cancel)->setText("Cancel");
-    bb->button(QDialogButtonBox::Ok)->setStyleSheet(primaryButtonStyle());
-    bb->button(QDialogButtonBox::Cancel)->setStyleSheet(dangerButtonStyle());
-    form->addRow(bb);
-
-    QObject::connect(bb, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    QObject::connect(bb, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-    if (dialog.exec() != QDialog::Accepted) {
-        return result;
+    if (!student) {
+        return StudentDialogResult();
     }
-
-    const QString name = nameField->text().trimmed();
-    const QString surname = surnameField->text().trimmed();
-
-    if (name.isEmpty() || surname.isEmpty()) {
-        QMessageBox::warning(parentWidget, "Error", "Name and surname cannot be empty.");
-        return result;
-    }
-
-    int semester = semesterField->value();
-    if (semester == 2) semester = 3;
-
-    result.setAccepted(true);
-    result.setName(name);
-    result.setSurname(surname);
-    result.setSemester(semester);
-    result.setAverageGrade(avgField->value());
-    result.setIsBudget(fundingField->currentText() == "Budget");
-    result.setMissedHours(missedHoursField->value());
-    result.setHasSocialScholarship(socialField->isChecked());
-
-    return result;
+    return showDialog("Edit Student", "Save", "Name and surname cannot be empty.", student);
 }
