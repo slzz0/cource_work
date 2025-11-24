@@ -215,7 +215,7 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
 }
 
 QTableWidgetItem* StudentTableManager::createNumberItem(int rowNum, const QFont& itemFont) {
-    QTableWidgetItem* numItem = new QTableWidgetItem(QString::number(rowNum));
+    auto numItem = new QTableWidgetItem(QString::number(rowNum));
     numItem->setTextAlignment(Qt::AlignCenter);
     numItem->setBackground(QBrush(QColor(0, 0, 0, 0)));
     numItem->setForeground(QBrush(QColor(180, 180, 180)));
@@ -228,7 +228,7 @@ QTableWidgetItem* StudentTableManager::createNumberItem(int rowNum, const QFont&
 QTableWidgetItem* StudentTableManager::createMissedHoursItem(const std::shared_ptr<Student>& student,
                                                              const QFont& itemFont,
                                                              const QColor& defaultTextColor) {
-    QTableWidgetItem* missedItem =
+    auto missedItem =
         new QTableWidgetItem(QString::number(student->getMissedHours()));
     missedItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     QColor redColor(255, 100, 100);
@@ -236,7 +236,7 @@ QTableWidgetItem* StudentTableManager::createMissedHoursItem(const std::shared_p
         missedItem->setData(Qt::UserRole + 10, true);
         missedItem->setData(Qt::UserRole + 11, redColor);
         missedItem->setForeground(QBrush(redColor));
-        QFont boldFont = itemFont;
+        auto boldFont = itemFont;
         boldFont.setWeight(QFont::Bold);
         missedItem->setFont(boldFont);
     } else {
@@ -250,13 +250,13 @@ QTableWidgetItem* StudentTableManager::createMissedHoursItem(const std::shared_p
 
 QTableWidgetItem* StudentTableManager::createScholarshipItem(double scholarship,
                                                              const QFont& itemFont) {
-    QTableWidgetItem* scholarshipItem =
+    auto scholarshipItem =
         new QTableWidgetItem(QString::number(scholarship, 'f', 2));
     scholarshipItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     scholarshipItem->setData(Qt::UserRole, 0);
     scholarshipItem->setData(Qt::UserRole + 2, scholarship);
 
-    QFont scholarshipFont = itemFont;
+    auto scholarshipFont = itemFont;
     if (scholarship > 0) {
         scholarshipItem->setData(Qt::UserRole + 1, QColor(100, 230, 100));
         scholarshipFont.setWeight(QFont::DemiBold);
@@ -295,7 +295,7 @@ void StudentTableManager::setupColumnWidths(bool scholarshipsCalculated) {
 }
 
 // Остальные методы остаются без изменений...
-void StudentTableManager::applyMissedHoursStyling() {
+void StudentTableManager::applyMissedHoursStyling() const {
     if (!table) return;
     for (int row = 0; row < table->rowCount(); ++row) {
         QTableWidgetItem* missedItem = table->item(row, 7);
@@ -316,38 +316,57 @@ void StudentTableManager::applyMissedHoursStyling() {
     }
 }
 
-void StudentTableManager::updateSelectionVisual() {
+bool StudentTableManager::shouldSkipColumn(int col) const {
+    return (col == 9 && table->columnCount() == 10) || (col == 10 && table->columnCount() == 11);
+}
+
+void StudentTableManager::applyItemForegroundColor(QTableWidgetItem* item, int col, const QColor& defaultColor) const {
+    if (col == 0) {
+        item->setForeground(QBrush(QColor(180, 180, 180)));
+        return;
+    }
+    
+    if (col == 7 && item->data(Qt::UserRole + 10).toBool()) {
+        auto redColor = item->data(Qt::UserRole + 11).value<QColor>();
+        if (!redColor.isValid()) {
+            redColor = QColor(255, 100, 100);
+        }
+        item->setForeground(QBrush(redColor));
+        return;
+    }
+    
+    if (col == 7) {
+        item->setForeground(QBrush(defaultColor));
+        return;
+    }
+    
+    if (col == 9 && table->columnCount() == 11 && item->data(Qt::UserRole + 2).isValid()) {
+        auto storedColor = item->data(Qt::UserRole + 1).value<QColor>();
+        item->setForeground(QBrush(storedColor.isValid() ? storedColor : defaultColor));
+        return;
+    }
+    
+    item->setForeground(QBrush(defaultColor));
+}
+
+void StudentTableManager::updateSelectionVisual() const {
     if (!table) return;
 
     QColor defaultColor(234, 234, 234);
 
     for (int row = 0; row < table->rowCount(); ++row) {
         for (int col = 0; col < table->columnCount(); ++col) {
-            // Skip Actions column (col 9 or 10 depending on scholarship) as it contains widgets, not items
-            if (col == 9 && table->columnCount() == 10) continue;
-            if (col == 10 && table->columnCount() == 11) continue;
-
-            QTableWidgetItem* item = table->item(row, col);
-            if (!item) continue;
-
-            // Never change background - no highlighting
-            item->setBackground(QBrush(Qt::transparent));
-            
-            if (col == 0) {
-                item->setForeground(QBrush(QColor(180, 180, 180)));
-            } else if (col == 7 && item->data(Qt::UserRole + 10).toBool()) {
-                QColor redColor = item->data(Qt::UserRole + 11).value<QColor>();
-                if (!redColor.isValid()) redColor = QColor(255, 100, 100);
-                item->setForeground(QBrush(redColor));
-            } else if (col == 7) {
-                item->setForeground(QBrush(defaultColor));
-            } else if (col == 9 && table->columnCount() == 11 && item->data(Qt::UserRole + 2).isValid()) {
-                // Scholarship column (when it's in position 9)
-                QColor storedColor = item->data(Qt::UserRole + 1).value<QColor>();
-                item->setForeground(QBrush(storedColor.isValid() ? storedColor : defaultColor));
-            } else {
-                item->setForeground(QBrush(defaultColor));
+            if (shouldSkipColumn(col)) {
+                continue;
             }
+
+            auto item = table->item(row, col);
+            if (!item) {
+                continue;
+            }
+
+            item->setBackground(QBrush(Qt::transparent));
+            applyItemForegroundColor(item, col, defaultColor);
         }
     }
 }

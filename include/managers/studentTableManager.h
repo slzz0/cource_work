@@ -27,7 +27,7 @@ signals:
     void viewHistoryRequested(int row);
 
 private slots:
-    void updateSelectionVisual();
+    void updateSelectionVisual() const;
     void onEditClicked();
     void onDeleteClicked();
     void onViewClicked();
@@ -36,7 +36,7 @@ private:
     QTableWidget* table = nullptr;
 
     void ensureScholarshipColumn(bool scholarshipsCalculated);
-    void applyMissedHoursStyling();
+    void applyMissedHoursStyling() const;
     QWidget* createActionButtons(int row);
     void setupColumnWidths(bool scholarshipsCalculated);
     void createRowItems(int row, int& rowNum, const std::shared_ptr<Student>& student,
@@ -46,6 +46,8 @@ private:
     QTableWidgetItem* createMissedHoursItem(const std::shared_ptr<Student>& student,
                                             const QFont& itemFont, const QColor& defaultTextColor);
     QTableWidgetItem* createScholarshipItem(double scholarship, const QFont& itemFont);
+    void applyItemForegroundColor(QTableWidgetItem* item, int col, const QColor& defaultColor) const;
+    bool shouldSkipColumn(int col) const;
 };
 
 #endif
