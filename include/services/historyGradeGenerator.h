@@ -11,7 +11,7 @@ class HistoryGradeGenerator {
 public:
     HistoryGradeGenerator();
 
-    void ensureHistoryForNewStudent(Student& student, int currentSemester);
+    void ensureHistoryForNewStudent(Student& student, int currentSemester) const;
     void handleSemesterChange(Student& student, int oldSemester, double oldAverageGrade,
                               int newSemester);
     void fillMissingHistoryForAll(const std::vector<std::shared_ptr<Student>>& students);

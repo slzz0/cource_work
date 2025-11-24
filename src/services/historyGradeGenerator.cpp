@@ -16,11 +16,11 @@ double HistoryGradeGenerator::generateRandomGrade() const {
     return std::round(value * 100.0) / 100.0;
 }
 
-void HistoryGradeGenerator::ensureHistoryForNewStudent(Student& student, int currentSemester) {
+void HistoryGradeGenerator::ensureHistoryForNewStudent(Student& student, int currentSemester) const {
     if (currentSemester <= 1) return;
     const auto& existingHistory = student.getPreviousSemesterGrades();
     for (int sem = 1; sem < currentSemester; ++sem) {
-        if (existingHistory.find(sem) == existingHistory.end()) {
+        if (!existingHistory.contains(sem)) {
             student.addPreviousGrade(sem, generateRandomGrade());
         }
     }
