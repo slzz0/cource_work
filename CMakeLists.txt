@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Scholar LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(Qt6_DIR "C:/msys64/mingw64/lib/cmake/Qt6")

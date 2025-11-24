@@ -4,6 +4,7 @@
 #include <cctype>
 #include <chrono>
 #include <cmath>
+#include <ctime>
 #include <format>
 #include <fstream>
 #include <functional>
@@ -80,8 +81,8 @@ std::string toLower(std::string_view str) {
 std::vector<std::shared_ptr<Student>> StudentDatabase::searchByName(std::string_view name) const {
     std::string lowerName = toLower(name);
     return searchStudents([&lowerName](const std::shared_ptr<Student>& student) {
-        return toLower(student->getName()).find(lowerName) != std::string::npos ||
-               toLower(student->getFullName()).find(lowerName) != std::string::npos;
+        return toLower(student->getName()).contains(lowerName) ||
+               toLower(student->getFullName()).contains(lowerName);
     });
 }
 
@@ -89,7 +90,7 @@ std::vector<std::shared_ptr<Student>> StudentDatabase::searchBySurname(
     std::string_view surname) const {
     std::string lowerSurname = toLower(surname);
     return searchStudents([&lowerSurname](const std::shared_ptr<Student>& student) {
-        return toLower(student->getSurname()).find(lowerSurname) != std::string::npos;
+        return toLower(student->getSurname()).contains(lowerSurname);
     });
 }
 
@@ -134,8 +135,16 @@ bool StudentDatabase::saveToFile(std::string_view fname) const {
 
     auto now = std::chrono::system_clock::now();
     auto time_t = std::chrono::system_clock::to_time_t(now);
+    
+    // Use std::chrono for thread-safe date formatting
+    std::tm tm_buf;
+#ifdef _WIN32
+    localtime_s(&tm_buf, &time_t);
+#else
+    localtime_r(&time_t, &tm_buf);
+#endif
     std::stringstream dateStream;
-    dateStream << std::put_time(std::localtime(&time_t), "%Y-%m-%d");
+    dateStream << std::put_time(&tm_buf, "%Y-%m-%d");
 
     file << "# Scholarship Management System - Student Database\n";
     file << "# Generated: " << dateStream.str() << "\n";
