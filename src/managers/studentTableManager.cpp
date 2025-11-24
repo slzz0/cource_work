@@ -395,16 +395,16 @@ void StudentTableManager::updateRowNumbers() {
 }
 
 QWidget* StudentTableManager::createActionButtons(int row) {
-    QWidget* widget = new QWidget();
+    auto widget = new QWidget();
     widget->setFixedHeight(27);
     widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    QHBoxLayout* layout = new QHBoxLayout(widget);
+    auto layout = new QHBoxLayout(widget);
     layout->setContentsMargins(5, 0, 5, 2);
     layout->setSpacing(5);
     layout->setAlignment(Qt::AlignCenter);
 
     // Edit button (pencil icon)
-    QPushButton* editBtn = new QPushButton("✏️");
+    auto editBtn = new QPushButton("✏️");
     editBtn->setToolTip("Edit Student");
     editBtn->setFixedSize(27, 27);
     editBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -427,7 +427,7 @@ QWidget* StudentTableManager::createActionButtons(int row) {
     layout->addWidget(editBtn);
 
     // View history button (eye icon)
-    QPushButton* viewBtn = new QPushButton("👁️");
+    auto viewBtn = new QPushButton("👁️");
     viewBtn->setToolTip("View History");
     viewBtn->setFixedSize(27, 27);
     editBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -450,7 +450,7 @@ QWidget* StudentTableManager::createActionButtons(int row) {
     layout->addWidget(viewBtn);
 
     // Delete button (cross/X icon)
-    QPushButton* deleteBtn = new QPushButton("❌");
+    auto deleteBtn = new QPushButton("❌");
     deleteBtn->setToolTip("Delete Student");
     deleteBtn->setFixedSize(27, 27);
     editBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -476,7 +476,7 @@ QWidget* StudentTableManager::createActionButtons(int row) {
 }
 
 void StudentTableManager::onEditClicked() {
-    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    const QPushButton* btn = qobject_cast<const QPushButton*>(sender());
     if (btn) {
         int row = btn->property("row").toInt();
         emit editStudentRequested(row);
@@ -484,7 +484,7 @@ void StudentTableManager::onEditClicked() {
 }
 
 void StudentTableManager::onDeleteClicked() {
-    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    const QPushButton* btn = qobject_cast<const QPushButton*>(sender());
     if (btn) {
         int row = btn->property("row").toInt();
         emit deleteStudentRequested(row);
@@ -492,7 +492,7 @@ void StudentTableManager::onDeleteClicked() {
 }
 
 void StudentTableManager::onViewClicked() {
-    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    const QPushButton* btn = qobject_cast<const QPushButton*>(sender());
     if (btn) {
         int row = btn->property("row").toInt();
         emit viewHistoryRequested(row);
