@@ -1,19 +1,6 @@
 #include "ui/mainWindow.h"
 
-#include <QApplication>
-#include <QBrush>
-#include <QDate>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QFont>
-#include <QFormLayout>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QMouseEvent>
-#include <QStringList>
-#include <QVBoxLayout>
+#include <QtWidgets>
 #include <algorithm>
 #include <iomanip>
 #include <map>
