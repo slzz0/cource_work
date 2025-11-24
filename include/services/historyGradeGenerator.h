@@ -17,7 +17,7 @@ public:
     void fillMissingHistoryForAll(const std::vector<std::shared_ptr<Student>>& students);
 
 private:
-    double generateRandomGrade();
+    double generateRandomGrade() const;
 };
 
 #endif

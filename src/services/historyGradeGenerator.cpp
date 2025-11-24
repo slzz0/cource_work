@@ -7,13 +7,12 @@
 
 HistoryGradeGenerator::HistoryGradeGenerator() = default;
 
-double HistoryGradeGenerator::generateRandomGrade() {
-    // Используем thread_local static для безопасной генерации случайных чисел
-    // в однопоточном контексте UI приложения
-    thread_local static std::mt19937 generator{std::random_device{}()};
-    thread_local static std::uniform_real_distribution<double> distribution{5.0, 10.0};
+double HistoryGradeGenerator::generateRandomGrade() const {
+    // Используем std::random_device для генерации случайных чисел
+    thread_local static std::random_device rd;
+    thread_local static std::uniform_real_distribution distribution{5.0, 10.0};
     
-    double value = distribution(generator);
+    double value = distribution(rd);
     return std::round(value * 100.0) / 100.0;
 }
 
