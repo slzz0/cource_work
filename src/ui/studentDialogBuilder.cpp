@@ -188,7 +188,7 @@ QDialogButtonBox* StudentDialogBuilder::createButtonBox(QDialog* dialog, const Q
     return bb;
 }
 
-void StudentDialogBuilder::connectButtonBox(QDialogButtonBox* bb, QDialog* dialog) const {
+void StudentDialogBuilder::connectButtonBox(const QDialogButtonBox* bb, const QDialog* dialog) const {
     QObject::connect(bb, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
     QObject::connect(bb, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
 }
@@ -239,11 +239,11 @@ StudentDialogResult StudentDialogBuilder::showDialog(const QString& title, const
     return result;
 }
 
-StudentDialogResult StudentDialogBuilder::showAddDialog() {
+StudentDialogResult StudentDialogBuilder::showAddDialog() const {
     return showDialog("Add Student", "Add", "Please enter both name and surname.", nullptr);
 }
 
-StudentDialogResult StudentDialogBuilder::showEditDialog(const std::shared_ptr<Student>& student) {
+StudentDialogResult StudentDialogBuilder::showEditDialog(const std::shared_ptr<Student>& student) const {
     if (!student) {
         return StudentDialogResult();
     }

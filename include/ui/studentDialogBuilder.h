@@ -63,15 +63,14 @@ class StudentDialogBuilder {
 public:
     explicit StudentDialogBuilder(QWidget* parent);
 
-    StudentDialogResult showAddDialog();
-    StudentDialogResult showEditDialog(const std::shared_ptr<Student>& student);
+    StudentDialogResult showAddDialog() const;
+    StudentDialogResult showEditDialog(const std::shared_ptr<Student>& student) const;
 
 private:
     StudentDialogResult showDialog(const QString& title, const QString& okButtonText,
                                    const QString& errorMessage,
                                    const std::shared_ptr<Student>& student) const;
 
-private:
     QWidget* parentWidget;
 
     QString buildDialogStyle() const;
@@ -81,7 +80,7 @@ private:
     DialogFields createFields(QDialog* dialog, const std::shared_ptr<Student>& student = nullptr) const;
     void addFieldsToForm(QFormLayout* form, const DialogFields& fields) const;
     QDialogButtonBox* createButtonBox(QDialog* dialog, const QString& okText) const;
-    void connectButtonBox(QDialogButtonBox* bb, QDialog* dialog) const;
+    void connectButtonBox(const QDialogButtonBox* bb, const QDialog* dialog) const;
     bool validateAndFillResult(const DialogFields& fields, StudentDialogResult& result, const QString& errorMessage) const;
 };
 
