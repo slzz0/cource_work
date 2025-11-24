@@ -154,22 +154,22 @@ void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
         int winterRow = table->rowCount();
         table->insertRow(winterRow);
 
-        QString winterLabel = QString("%1 (Winter)").arg(year);
-        QTableWidgetItem* winterItem = new QTableWidgetItem(winterLabel);
+        auto winterLabel = QString("%1 (Winter)").arg(year);
+        auto winterItem = new QTableWidgetItem(winterLabel);
         winterItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         winterItem->setForeground(QBrush(defaultTextColor));
         winterItem->setFont(itemFont);
         winterItem->setFlags(winterItem->flags() & ~Qt::ItemIsSelectable);
         table->setItem(winterRow, 0, winterItem);
 
-        QTableWidgetItem* winterCountItem = new QTableWidgetItem(QString::number(stats.winterCount));
+        auto winterCountItem = new QTableWidgetItem(QString::number(stats.winterCount));
         winterCountItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         winterCountItem->setForeground(QBrush(defaultTextColor));
         winterCountItem->setFont(itemFont);
         winterCountItem->setFlags(winterCountItem->flags() & ~Qt::ItemIsSelectable);
         table->setItem(winterRow, 1, winterCountItem);
 
-        QTableWidgetItem* winterTotalItem =
+        auto winterTotalItem =
             new QTableWidgetItem(QString::number(stats.winterTotal, 'f', 2));
         winterTotalItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         if (stats.winterTotal > 0) {
@@ -187,15 +187,15 @@ void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
         int summerRow = table->rowCount();
         table->insertRow(summerRow);
 
-        QString summerLabel = QString("%1 (Summer)").arg(year);
-        QTableWidgetItem* summerItem = new QTableWidgetItem(summerLabel);
+        auto summerLabel = QString("%1 (Summer)").arg(year);
+        auto summerItem = new QTableWidgetItem(summerLabel);
         summerItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         summerItem->setForeground(QBrush(defaultTextColor));
         summerItem->setFont(itemFont);
         summerItem->setFlags(summerItem->flags() & ~Qt::ItemIsSelectable);
         table->setItem(summerRow, 0, summerItem);
 
-        QTableWidgetItem* summerCountItem =
+        auto summerCountItem =
             new QTableWidgetItem(QString::number(stats.summerCount));
         summerCountItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         summerCountItem->setForeground(QBrush(defaultTextColor));
@@ -203,7 +203,7 @@ void StudentStatisticsUpdater::populateTableRows(QTableWidget* table,
         summerCountItem->setFlags(summerCountItem->flags() & ~Qt::ItemIsSelectable);
         table->setItem(summerRow, 1, summerCountItem);
 
-        QTableWidgetItem* summerTotalItem =
+        auto summerTotalItem =
             new QTableWidgetItem(QString::number(stats.summerTotal, 'f', 2));
         summerTotalItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
         if (stats.summerTotal > 0) {

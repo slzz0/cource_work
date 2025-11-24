@@ -76,10 +76,10 @@ void MainWindow::setupUI() {
         "QTabBar::tab:hover { background-color: #14a085; }"
         "QLabel { color: #ffffff; }");
 
-    QWidget* centralWidget = new QWidget(this);
+    auto centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
+    auto mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setSpacing(15);
     mainLayout->setContentsMargins(20, 20, 20, 20);
 
@@ -91,8 +91,8 @@ void MainWindow::setupUI() {
 
 void MainWindow::createTabs() {
     tabWidget = new QTabWidget(this);
-    QWidget* studentsTab = new QWidget(this);
-    QWidget* statisticsTab = new QWidget(this);
+    auto studentsTab = new QWidget(this);
+    auto statisticsTab = new QWidget(this);
 
     createStudentsTab(studentsTab);
     createStatisticsTab(statisticsTab);
@@ -102,15 +102,15 @@ void MainWindow::createTabs() {
 }
 
 void MainWindow::createStudentsTab(QWidget* tab) {
-    QVBoxLayout* mainLayout = new QVBoxLayout(tab);
+    auto mainLayout = new QVBoxLayout(tab);
     mainLayout->setSpacing(12);
     mainLayout->setContentsMargins(15, 15, 15, 15);
 
     // Search panel
-    QHBoxLayout* searchLayout = new QHBoxLayout();
+    auto searchLayout = new QHBoxLayout();
     searchLayout->setSpacing(10);
 
-    QLabel* searchLabel = new QLabel("Search:", this);
+    auto searchLabel = new QLabel("Search:", this);
     searchLabel->setStyleSheet("font-weight: bold; font-size: 12px; color: #ffffff;");
     searchEdit = new QLineEdit(this);
     searchEdit->setPlaceholderText("Enter student name or surname...");
@@ -155,7 +155,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     mainLayout->addLayout(searchLayout);
 
     // Table and buttons panel - side by side
-    QHBoxLayout* tableButtonsLayout = new QHBoxLayout();
+    auto tableButtonsLayout = new QHBoxLayout();
     tableButtonsLayout->setSpacing(15);
 
     // Create table first
@@ -182,7 +182,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
         "color: #14a085;"
         "}");
 
-    QVBoxLayout* buttonsLayout = new QVBoxLayout(buttonsGroup);
+    auto buttonsLayout = new QVBoxLayout(buttonsGroup);
     buttonsLayout->setSpacing(10);
     buttonsLayout->setContentsMargins(12, 18, 12, 12);
 
@@ -254,12 +254,12 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 }
 
 void MainWindow::createStatisticsTab(QWidget* tab) {
-    QVBoxLayout* mainLayout = new QVBoxLayout(tab);
+    auto mainLayout = new QVBoxLayout(tab);
     mainLayout->setSpacing(20);
     mainLayout->setContentsMargins(20, 20, 20, 20);
 
     // General Statistics
-    QGroupBox* statsGroup = new QGroupBox("General Statistics", this);
+    auto statsGroup = new QGroupBox("General Statistics", this);
     statsGroup->setStyleSheet(
         "QGroupBox {"
         "font-weight: bold;"
@@ -276,7 +276,7 @@ void MainWindow::createStatisticsTab(QWidget* tab) {
         "padding: 0 5px;"
         "color: #14a085;"
         "}");
-    QGridLayout* statsLayout = new QGridLayout(statsGroup);
+    auto statsLayout = new QGridLayout(statsGroup);
 
     totalStudentsLabel = new QLabel("Total Students: 0", this);
     budgetStudentsLabel = new QLabel("Budget Students: 0", this);
@@ -297,7 +297,7 @@ void MainWindow::createStatisticsTab(QWidget* tab) {
     mainLayout->addWidget(statsGroup);
 
     // Year/Session Statistics Table
-    QLabel* semesterStatsLabel = new QLabel("Statistics by Year/Session:", this);
+    auto semesterStatsLabel = new QLabel("Statistics by Year/Session:", this);
     semesterStatsLabel->setStyleSheet(
         "font-weight: bold; font-size: 14px; color: #14a085; margin-top: 10px;");
     mainLayout->addWidget(semesterStatsLabel);
