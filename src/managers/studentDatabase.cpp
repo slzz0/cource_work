@@ -245,7 +245,7 @@ bool StudentDatabase::saveToFile(std::string_view fname) const {
     auto now = std::chrono::system_clock::now();
     auto time_t = std::chrono::system_clock::to_time_t(now);
     
-    // Use std::chrono for thread-safe date formatting
+    
     std::tm tm_buf;
 #ifdef _WIN32
     localtime_s(&tm_buf, &time_t);

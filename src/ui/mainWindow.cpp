@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     try {
         database.loadFromFile();
-        // Fill missing previous semester grades for all students
         fillMissingHistoryGrades();
     } catch (const FileIOException& e) {
         QMessageBox::warning(
@@ -93,7 +92,6 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     mainLayout->setSpacing(12);
     mainLayout->setContentsMargins(15, 15, 15, 15);
 
-    // Search panel
     auto searchLayout = new QHBoxLayout();
     searchLayout->setSpacing(10);
 
@@ -141,15 +139,12 @@ void MainWindow::createStudentsTab(QWidget* tab) {
 
     mainLayout->addLayout(searchLayout);
 
-    // Table and buttons panel - side by side
     auto tableButtonsLayout = new QHBoxLayout();
     tableButtonsLayout->setSpacing(15);
 
-    // Create table first
     createStudentTable();
-    tableButtonsLayout->addWidget(studentTable, 51);  // Table takes 51 parts of space (2.55:1 ratio)
+    tableButtonsLayout->addWidget(studentTable, 51);  
 
-    // Right side - Buttons column in a styled container
     auto buttonsGroup = new QGroupBox("Actions", this);
     buttonsGroup->setStyleSheet(
         "QGroupBox {"
@@ -173,7 +168,6 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     buttonsLayout->setSpacing(10);
     buttonsLayout->setContentsMargins(12, 18, 12, 12);
 
-    // Common button style
     QString buttonStyle =
         "QPushButton {"
         "background-color: #0d7377;"
@@ -195,19 +189,16 @@ void MainWindow::createStudentsTab(QWidget* tab) {
         "color: #666; "
         "}";
 
-    // Add student button
     addStudentButton = new QPushButton("Add Student", this);
     addStudentButton->setStyleSheet(buttonStyle);
     connect(addStudentButton, &QPushButton::clicked, this, &MainWindow::addStudent);
     buttonsLayout->addWidget(addStudentButton);
 
-    // Calculate scholarships button
     calculateButton = new QPushButton("Calculate Scholarships", this);
     calculateButton->setStyleSheet(buttonStyle);
     connect(calculateButton, &QPushButton::clicked, this, &MainWindow::calculateAllScholarships);
     buttonsLayout->addWidget(calculateButton);
 
-    // Apply the same font as buttons to the table
     QFont tableFont = addStudentButton->font();
     tableFont.setBold(false);
     studentTable->setFont(tableFont);
@@ -218,7 +209,7 @@ void MainWindow::createStudentsTab(QWidget* tab) {
     }
 
     buttonsLayout->addStretch();
-    tableButtonsLayout->addWidget(buttonsGroup, 20);  // Buttons take 20 parts of space (51:20 = 2.55:1 ratio with table)
+    tableButtonsLayout->addWidget(buttonsGroup, 20);  
 
     mainLayout->addLayout(tableButtonsLayout, 1);
 

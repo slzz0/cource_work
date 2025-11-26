@@ -8,7 +8,6 @@
 HistoryGradeGenerator::HistoryGradeGenerator() = default;
 
 double HistoryGradeGenerator::generateRandomGrade() const {
-    // Используем std::random_device для генерации случайных чисел
     thread_local static std::random_device rd;
     thread_local static std::uniform_real_distribution distribution{5.0, 10.0};
     

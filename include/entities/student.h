@@ -18,8 +18,8 @@
         int missedHours = 0;
         bool hasSocialScholarship = false;
         std::map<int, double> previousSemesterGrades;
-        std::map<int, double> previousSemesterScholarships;  // История стипендий по семестрам
-        int budgetSemester = -1;  // Семестр, когда студент стал бюджетником (-1 если всегда был бюджетником)
+        std::map<int, double> previousSemesterScholarships;  
+        int budgetSemester = -1;  
 
     public:
         Student(std::string_view name, std::string_view surname, int course, int semester,

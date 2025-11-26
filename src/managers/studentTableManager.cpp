@@ -36,13 +36,12 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
         table->horizontalHeader()->installEventFilter(eventFilterOwner);
     }
 
-    // Улучшенные шрифты
-    QFont baseFont("SF Pro Display", 11, QFont::Normal);  // Более современный и четкий
+    QFont baseFont("SF Pro Display", 11, QFont::Normal);  
     baseFont.setStyleHint(QFont::SansSerif);
     table->setFont(baseFont);
 
     if (table->horizontalHeader()) {
-        QFont headerFont("", 11, QFont::DemiBold);  // Полужирный для заголовков
+        QFont headerFont("", 11, QFont::DemiBold);  
         headerFont.setStyleHint(QFont::SansSerif);
         table->horizontalHeader()->setFont(headerFont);
     }
@@ -51,10 +50,10 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
         "QHeaderView::section {"
         "background-color: #2A2A2A;"
         "color: #EAEAEA;"
-        "padding: 14px 12px;"  // Уменьшил отступы
+        "padding: 14px 12px;"  
         "border: none;"
         "border-bottom: 2px solid #0d7377;"
-        "min-height: 45px;"  // Уменьшил высоту
+        "min-height: 45px;"  
         "}"
         "QHeaderView::section:first {"
         "background-color: transparent;"
@@ -71,7 +70,7 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
         "border-radius: 8px;"
         "}"
         "QTableWidget::item {"
-        "padding: 12px 10px;"  // Уменьшил отступы в ячейках
+        "padding: 12px 10px;"  
         "border: none;"
         "}"
         "QTableWidget::item:alternate {"
@@ -86,9 +85,8 @@ void StudentTableManager::configure(QObject* eventFilterOwner) {
 
 void StudentTableManager::ensureScholarshipColumn(bool scholarshipsCalculated) {
     if (!table) return;
-    int baseColumns = 10;  // 9 data columns + 1 Actions column
+    int baseColumns = 10;  
     if (scholarshipsCalculated && table->columnCount() == baseColumns) {
-        // Insert scholarship column at position 9 (between Social and Actions)
         table->insertColumn(9);
         table->setHorizontalHeaderItem(9, new QTableWidgetItem("Scholarship (BYN)"));
         table->horizontalHeader()->setSortIndicator(-1, Qt::AscendingOrder);
@@ -136,13 +134,11 @@ void StudentTableManager::populate(const std::vector<std::shared_ptr<Student>>& 
 void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared_ptr<Student>& student,
                                          const QFont& itemFont, const QColor& defaultTextColor,
                                          bool scholarshipsCalculated) {
-    // Номер строки
     int currentRowNum = rowNum;
     rowNum++;
     auto numItem = createNumberItem(currentRowNum, itemFont);
     table->setItem(row, 0, numItem);
 
-    // Имя и Фамилия - делаем шрифт немного жирнее для лучшей читаемости
     auto nameFont = itemFont;
     nameFont.setWeight(QFont::Medium);
 
@@ -158,7 +154,6 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     surnameItem->setFont(nameFont);
     table->setItem(row, 2, surnameItem);
 
-    // Остальные ячейки
     auto courseItem = new QTableWidgetItem(QString::number(student->getCourse()));
     courseItem->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     courseItem->setForeground(QBrush(defaultTextColor));
@@ -196,14 +191,12 @@ void StudentTableManager::createRowItems(int row, int& rowNum, const std::shared
     socialItem->setFont(itemFont);
     table->setItem(row, 8, socialItem);
 
-    // Scholarship column (position 9, between Social and Actions)
     if (scholarshipsCalculated && table->columnCount() > 9) {
         double scholarship = student->getScholarship();
         auto scholarshipItem = createScholarshipItem(scholarship, itemFont);
         table->setItem(row, 9, scholarshipItem);
     }
 
-    // Actions column with icon buttons (position 10 when scholarship exists, 9 otherwise)
     int actionsCol;
     if (scholarshipsCalculated && table->columnCount() > 9) {
         actionsCol = 10;
@@ -280,21 +273,20 @@ void StudentTableManager::setupColumnWidths(bool scholarshipsCalculated) {
         table->resizeColumnsToContents();
     }
 
-    table->setColumnWidth(1, 100);  // Name
-    table->setColumnWidth(2, 120);  // Surname
-    table->setColumnWidth(5, 100);  // Funding Type
-    table->setColumnWidth(6, 110);  // Average Grade
-    table->setColumnWidth(7, 100);  // Missed Hours
-    table->setColumnWidth(8, 70);   // Social
+    table->setColumnWidth(1, 100);  
+    table->setColumnWidth(2, 120);  
+    table->setColumnWidth(5, 100);  
+    table->setColumnWidth(6, 110);  
+    table->setColumnWidth(7, 100);  
+    table->setColumnWidth(8, 70);   
     if (scholarshipsCalculated && table->columnCount() > 9) {
-        table->setColumnWidth(9, 130);  // Scholarship
-        table->setColumnWidth(10, 120);  // Actions
+        table->setColumnWidth(9, 130);  
+        table->setColumnWidth(10, 120);  
     } else {
-        table->setColumnWidth(9, 120);  // Actions
+        table->setColumnWidth(9, 120);  
     }
 }
 
-// Остальные методы остаются без изменений...
 void StudentTableManager::applyMissedHoursStyling() const {
     if (!table) return;
     for (int row = 0; row < table->rowCount(); ++row) {
@@ -403,7 +395,7 @@ QWidget* StudentTableManager::createActionButtons(int row) {
     layout->setSpacing(5);
     layout->setAlignment(Qt::AlignCenter);
 
-    // Edit button (pencil icon)
+    
     auto editBtn = new QPushButton("✏️");
     editBtn->setToolTip("Edit Student");
     editBtn->setFixedSize(27, 27);
@@ -426,7 +418,6 @@ QWidget* StudentTableManager::createActionButtons(int row) {
     connect(editBtn, &QPushButton::clicked, this, &StudentTableManager::onEditClicked);
     layout->addWidget(editBtn);
 
-    // View history button (eye icon)
     auto viewBtn = new QPushButton("👁️");
     viewBtn->setToolTip("View History");
     viewBtn->setFixedSize(27, 27);

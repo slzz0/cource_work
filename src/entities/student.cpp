@@ -32,7 +32,6 @@ Student::Student(std::string_view name, std::string_view surname, int course, in
     }
 
     scholarship = 0.0;
-    // Если студент создается как бюджетник, считаем что он был бюджетником с первого семестра
     if (isBudget) {
         budgetSemester = 1;
     }
@@ -48,7 +47,6 @@ std::string Student::getStudentInfo() const {
 }
 
 void Student::recalculateScholarship() {
-    // Сохраняем стипендии за все предыдущие семестры перед пересчетом
     saveHistoricalScholarships();
     
     scholarship = 0.0;
@@ -66,9 +64,6 @@ void Student::recalculateScholarship() {
 }
 
 void Student::saveHistoricalScholarships() {
-    // Сохраняем стипендии за все предыдущие семестры перед пересчетом
-    // Это гарантирует, что при переводе на платное стипендии не будут потеряны
-    // НО: рассчитываем стипендии только за семестры, когда студент был бюджетником
     if (!isBudget || budgetSemester <= 0) {
         return;
     }
@@ -77,13 +72,11 @@ void Student::saveHistoricalScholarships() {
 }
 
 bool Student::isEligibleForScholarship() const {
-    // Если студент сейчас платный, он не может получать стипендию
     if (!isBudget) {
         return false;
     }
-    // Проверяем, что текущий семестр >= budgetSemester (когда студент стал бюджетником)
     if (budgetSemester > 0 && semester < budgetSemester) {
-        return false;  // Студент еще не был бюджетником в этом семестре
+        return false;  
     }
     return true;
 }
@@ -103,15 +96,12 @@ void Student::calculateCurrentScholarship() {
 }
 
 void Student::saveCurrentScholarshipToHistory() {
-    // Сохраняем стипендию в историю для текущего семестра после пересчета
     if (scholarship > 0.0) {
         previousSemesterScholarships[semester] = scholarship;
     }
 }
 
 void Student::setSemester(int newSemester) {
-    // Перед сменой семестра сохраняем текущую стипендию в историю
-    // Только если студент был бюджетником в текущем семестре
     if (isBudget && scholarship > 0.0 && semester > 0 && budgetSemester > 0 && semester >= budgetSemester) {
         previousSemesterScholarships[semester] = scholarship;
     }
@@ -120,7 +110,7 @@ void Student::setSemester(int newSemester) {
 }
 
 void Student::setIsBudget(bool newIsBudget) {
-    // Если тип финансирования не изменился, ничего не делаем
+
     if (isBudget == newIsBudget) {
         return;
     }
@@ -128,47 +118,33 @@ void Student::setIsBudget(bool newIsBudget) {
     bool wasBudget = isBudget;
     isBudget = newIsBudget;
     
-    // Если переводим с бюджета на платное
     if (wasBudget && !newIsBudget) {
-        // Обнуляем стипендию только для текущего семестра
         scholarship = 0.0;
-        // Удаляем стипендию из истории только для текущего семестра
-        // За прошлые семестры ничего не меняется - стипендии остаются в истории
         previousSemesterScholarships.erase(semester);
-        // НЕ сбрасываем budgetSemester - оставляем его для сохранения истории стипендий за прошлые семестры
-        // budgetSemester будет использоваться для проверки, был ли студент бюджетником в прошлых семестрах
     }
-    // Если переводим с платного на бюджет
     else if (!wasBudget && newIsBudget) {
-        // Устанавливаем текущий семестр как начало бюджетного обучения
         budgetSemester = semester;
-        // Удаляем стипендии за семестры до budgetSemester (когда студент был платным)
         std::erase_if(previousSemesterScholarships,
                       [this](const auto& pair) { return pair.first < budgetSemester; });
-        // Рассчитываем стипендию только для текущего семестра
         if (isEligibleForScholarship()) {
             calculateCurrentScholarship();
             saveCurrentScholarshipToHistory();
         } else {
             scholarship = 0.0;
         }
-        // За прошлые семестры ничего не меняется
     }
 }
 
 void Student::saveScholarshipsForBudgetSemesters(int startSemester) {
     for (const auto& [sem, grade] : previousSemesterGrades) {
-        // Сохраняем стипендии только за семестры, когда студент был бюджетником
         if (sem < startSemester) {
             continue;
         }
         
-        // Пропускаем текущий семестр - он обрабатывается отдельно
         if (sem == semester) {
             continue;
         }
         
-        // Если стипендия для этого семестра еще не сохранена, вычисляем и сохраняем
         if (previousSemesterScholarships.contains(sem)) {
             continue;
         }
