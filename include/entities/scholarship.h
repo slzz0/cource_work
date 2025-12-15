@@ -16,14 +16,12 @@ public:
     int getSemester() const { return semester; }
     void setSemester(int value) { semester = value; }
     
-    // Static constants for scholarship amounts
     static constexpr double SCHOLARSHIP_5_0_5_9 = 157.18;
     static constexpr double SCHOLARSHIP_6_0_7_9 = 188.61;
     static constexpr double SCHOLARSHIP_8_0_8_9 = 220.05;
     static constexpr double SCHOLARSHIP_9_0_10_0 = 251.48;
     static constexpr double SOCIAL_SCHOLARSHIP = 100.00;
     
-    // Static methods for calculation
     static double calculateScholarshipAmount(double averageGrade);
     static std::string getScholarshipBracket(double averageGrade);
     
@@ -33,5 +31,5 @@ private:
     int semester;
 };
 
-#endif // SCHOLARSHIP_H
+#endif 
 
